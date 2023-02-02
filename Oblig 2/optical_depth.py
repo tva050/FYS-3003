@@ -25,6 +25,23 @@ for vertical incidence, and for variable zenith-angle of the incident light.
 
 """
 
+# phi are the wavelength-dependent absorption cross sections of species j
+# n_j(0) are the heights profile of the concentration of species j
+# kji is the zenith angle of the incident light
+# z is the altitude 
+
+# make a function which degrees the number of 601 elements in the height profile to the number of elements in the wavelength profile
+def n_j_0(n_j_0, wavelength):
+    n_j_0 = np.zeros(len(wavelength))
+    return n_j_0
+
+plt.plot(wavelength, n_j_0(n_j_0, wavelength))
+plt.show()
+
+""" integral = sp.integrate.trapz()
+
+def optical_depth(wavelength, kji_0, z_0, n_j, phi):
+    optical_depth = np.sum() """
     
 
 
