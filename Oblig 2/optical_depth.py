@@ -14,7 +14,7 @@ sigma_ionization = sc.io.loadmat('sigma_ionization.mat')
 R_earth = 6.371e6 # radius of the earth, [m]
 
 z0 = 0 # [m]
-SZA = 0 # solar zenit angles
+SZA = 50 *(np.pi/180) # solar zenit angles
 
 height = height * 1e3 # -> [m]
 density = O*1e6 , N2*1e6 , O2*1e6 # -> [m^-3]
