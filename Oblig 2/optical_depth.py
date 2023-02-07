@@ -60,14 +60,30 @@ def plot_absorption_cross_section():
     plt.xlabel('Wavelength [nm]')
     plt.ylabel('Absorption cross section [m$^2$]')
     plt.title("Absorption cross section")
-    plt.legend(loc='upper left', borderaxespad=0.5, fontsize=10, frameon=True, ncol=3, fancybox=True, shadow=True)
+    plt.legend(loc='upper left', fontsize=10, frameon=True, ncol=3, fancybox=True, shadow=True)
     plt.show()
     
+def plot_thermospheric_density():
+    plt.plot(density[1], height*1e-3, label='N$_2$')
+    plt.plot(density[2], height*1e-3, label='O$_2$', color = "black")
+    plt.plot(density[0], height*1e-3, label='O', color = "teal")
+    plt.xscale('log')
+    plt.xlabel('Density [m$^{-3}$]')
+    plt.ylabel('Height [km]')
+    plt.title("Thermospheric density with altitude variation")
+    plt.legend(loc='upper right', fontsize=10, frameon=True, ncol=3, fancybox=True, shadow=True)
+    plt.show()
+    
+    
+    
+
+""" 
+b)
+- Calculate the the EUV-photon flux as function of wavelength and height 
+- plot for the altitude-varitation of the thermospheric density
+"""
 
 if __name__ == "__main__":
-    plot_optical_depth(wavelength, height, sums_up)
-    #plot_absorption_cross_section()
-    
-    
-
-""" b) """
+    #plot_optical_depth(wavelength, height, sums_up)
+    plot_absorption_cross_section()
+    plot_thermospheric_density()
