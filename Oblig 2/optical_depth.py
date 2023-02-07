@@ -83,7 +83,10 @@ b)
 - plot for the altitude-varitation of the thermospheric density
 """
 
+def EUV_photon_flux():
+    I = 
+
 if __name__ == "__main__":
     #plot_optical_depth(wavelength, height, sums_up)
-    plot_absorption_cross_section()
-    plot_thermospheric_density()
+    #plot_absorption_cross_section()
+    #plot_thermospheric_density()
