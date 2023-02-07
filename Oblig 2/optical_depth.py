@@ -25,12 +25,12 @@ def optical_depth(wavelength, height, absorption_cross_section, density):
     for i in range(len(height)):
         for j in range(len(wavelength)):
             z0 = height[i]
-            integrand = density[height>=z0]*(1e6) * (1 - ( (R_earth + z0)/(R_earth + height[height>=z0]) ) ** 2 * (np.sin(SZA)) ** 2 ) ** (-0.5)
+            integrand = density[height>=z0] * (1 - ( (R_earth + z0)/(R_earth + height[height>=z0]) ) ** 2 * (np.sin(SZA)) ** 2 ) ** (-0.5)
             integral = sc.integrate.trapz(integrand, height[height>=z0])
             tau[i][j] = integral * absorption_cross_section[j]
     return tau
 
-sums_up = optical_depth(wavelength, height, absorption_cross_section_col_N2, N2) + optical_depth(wavelength, height, absorption_cross_section_col_O2, O2) + optical_depth(wavelength, height, absorption_cross_section_col_O, O)
+sums_up = optical_depth(wavelength, height, absorption_cross_section_col_N2, density[0]) + optical_depth(wavelength, height, absorption_cross_section_col_O2, density[1]) + optical_depth(wavelength, height, absorption_cross_section_col_O, density[2])
 
 # plot a line at unit optical depth (i.e. where tau is closest to one) for each wavelength
 def tau_close_to_one(wavelength, height, sums_up):
