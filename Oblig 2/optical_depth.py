@@ -8,7 +8,7 @@ plt.style.use('ggplot')
 """ Import data from file """
 height, O, N2, O2, mass_density, temperature_neutral = np.loadtxt('Data\MSIS.dat', skiprows=18, unpack=True)
 wavelength, absorption_cross_section_col_N2, absorption_cross_section_col_O2, absorption_cross_section_col_O = np.loadtxt("Data\phot_abs.dat", skiprows=8, unpack=True)
-time, wavelength, irradiance = np.loadtxt("Data\irradiance.dat", skiprows = 1 ,unpack=True)
+time, wavelength_fism, irradiance, uncertainty  = np.loadtxt("Data\Fism_daily_hr19990216.dat", delimiter="," ,skiprows= 1,unpack=True)
 sigma_ionization = sc.io.loadmat('Data\sigma_ionization.mat')
 
 """ Constants and conversion """
@@ -74,18 +74,34 @@ def plot_thermospheric_density():
     plt.title("Thermospheric density with altitude variation")
     plt.legend(loc='upper right', fontsize=10, frameon=True, ncol=3, fancybox=True, shadow=True)
     plt.show()
-    
-    
-    
+
 
 """ 
 b)
 - Calculate the the EUV-photon flux as function of wavelength and height 
-- plot for the altitude-varitation of the thermospheric density
 """
 
-def EUV_photon_flux():
-    I = 
+# print the irradiance data which corresponds from 85km to infinity 
+print(irradiance.shape)
+print(height.shape)
+
+""" def EUV_photon_flux():
+    EUV_photon_flux = np.zeros((len(height),len(wavelength)), dtype=float)
+    for i in range(len(height)):
+        for j in range(len(wavelength)):
+            EUV_photon_flux[i][j] = irradiance[j] * (1 - ( (R_earth + z0)/(R_earth + height[height>=z0]) ) ** 2 * (np.sin(SZA)) ** 2 ) ** (-0.5)
+    return EUV_photon_flux """
+
+
+""" def EUV_photon_flux(height, wavelength, irradiance):
+    EUV_photon_flux = np.zeros((len(height),len(wavelength)), dtype=float)
+    for i in range(len(height)):
+        for j in range(len(wavelength)):
+            EUV_photon_flux[i][j] = irradiance[j] * (1 - ( (R_earth + z0)/(R_earth + height[height>=z0]) ) ** 2 * (np.sin(SZA)) ** 2 ) ** (-0.5)
+    return EUV_photon_flux """
+
+def plot_irr_wave():
+    
 
 if __name__ == "__main__":
     #plot_optical_depth(wavelength, height, sums_up)
