@@ -6,9 +6,10 @@ from matplotlib import colors
 plt.style.use('ggplot')
 
 """ Import data from file """
-height, O, N2, O2, mass_density, temperature_neutral = np.loadtxt('MSIS.dat', skiprows=18, unpack=True)
-wavelength, absorption_cross_section_col_N2, absorption_cross_section_col_O2, absorption_cross_section_col_O = np.loadtxt("phot_abs.dat", skiprows=8, unpack=True)
-sigma_ionization = sc.io.loadmat('sigma_ionization.mat')
+height, O, N2, O2, mass_density, temperature_neutral = np.loadtxt('Data\MSIS.dat', skiprows=18, unpack=True)
+wavelength, absorption_cross_section_col_N2, absorption_cross_section_col_O2, absorption_cross_section_col_O = np.loadtxt("Data\phot_abs.dat", skiprows=8, unpack=True)
+time, wavelength, irradiance = np.loadtxt("Data\irradiance.dat", skiprows = 1 ,unpack=True)
+sigma_ionization = sc.io.loadmat('Data\sigma_ionization.mat')
 
 """ Constants and conversion """
 R_earth = 6.371e6 # radius of the earth, [m]
