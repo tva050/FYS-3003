@@ -30,6 +30,9 @@ def optical_depth(wavelength, height, absorption_cross_section, density):
             tau[i][j] = integral * absorption_cross_section[j]
     return tau
 
+def get_optical_depth(wavelength, heigth, absortion_cs1, absortion_cs2, absortion_cs3, de):
+    get_od = 
+
 sums_up = optical_depth(wavelength, height, absorption_cross_section_col_N2, density[0]) + optical_depth(wavelength, height, absorption_cross_section_col_O2, density[1]) + optical_depth(wavelength, height, absorption_cross_section_col_O, density[2])
 
 # plot a line at unit optical depth (i.e. where tau is closest to one) for each wavelength
@@ -93,17 +96,14 @@ print(height.shape)
     return EUV_photon_flux """
 
 
-""" def EUV_photon_flux(height, wavelength, irradiance):
+def EUV_photon_flux(height, wavelength, irradiance):
     EUV_photon_flux = np.zeros((len(height),len(wavelength)), dtype=float)
     for i in range(len(height)):
         for j in range(len(wavelength)):
             EUV_photon_flux[i][j] = irradiance[j] * (1 - ( (R_earth + z0)/(R_earth + height[height>=z0]) ) ** 2 * (np.sin(SZA)) ** 2 ) ** (-0.5)
-    return EUV_photon_flux """
+    return EUV_photon_flux
 
-def plot_irr_wave():
+plt.plot(wavelength_fism*1e9, EUV_photon_flux(height, wavelength_fism, irradiance))
+plt.show()
     
 
-if __name__ == "__main__":
-    #plot_optical_depth(wavelength, height, sums_up)
-    #plot_absorption_cross_section()
-    #plot_thermospheric_density()
