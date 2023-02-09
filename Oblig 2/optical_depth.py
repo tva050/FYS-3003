@@ -30,26 +30,26 @@ def optical_depth(wavelength, height, absorption_cross_section, density):
             tau[i][j] = integral * absorption_cross_section[j]
     return tau
 
-def get_optical_depth(wavelength, heigth, absortion_cs1, absortion_cs2, absortion_cs3, de):
-    get_od = 
-
-sums_up = optical_depth(wavelength, height, absorption_cross_section_col_N2, density[0]) + optical_depth(wavelength, height, absorption_cross_section_col_O2, density[1]) + optical_depth(wavelength, height, absorption_cross_section_col_O, density[2])
+#sums_up = optical_depth(wavelength, height, absorption_cross_section_col_N2, density[0]) + optical_depth(wavelength, height, absorption_cross_section_col_O2, density[1]) + optical_depth(wavelength, height, absorption_cross_section_col_O, density[2])
+def get_optical_depth(wavelength, height, absorption_cs1, absorption_cs2, absorption_cs3):
+    get_od = optical_depth(wavelength, height, absorption_cs1, density[0]) + optical_depth(wavelength, height, absorption_cs2, density[1]) + optical_depth(wavelength, height, absorption_cs3, density[2])
+    return get_od
 
 # plot a line at unit optical depth (i.e. where tau is closest to one) for each wavelength
-def tau_close_to_one(wavelength, height, sums_up):
+def tau_close_to_one(wavelength, height, optical_depth):
     def find_nearest(array, value):
         array = np.array(array)
         idx = (np.abs(array - value)).argmin()
         return idx
     tau = []
     for i in range(len(wavelength)):
-            index = find_nearest(sums_up[:,i], 1)
+            index = find_nearest(optical_depth[:,i], 1)
             tau.append(height[index]*1e-3)
     return tau
 
-def plot_optical_depth(wavelength, height, sums_up):
-    plt.pcolormesh(wavelength*1e9, height*1e-3, sums_up , norm=colors.LogNorm())
-    plt.plot(wavelength*1e9, tau_close_to_one(wavelength, height, sums_up), color='black', linewidth=1)
+def plot_optical_depth(wavelength, height):
+    plt.pcolormesh(wavelength*1e9, height*1e-3, get_optical_depth(wavelength, height ,absorption_cross_section_col_N2, absorption_cross_section_col_O2, absorption_cross_section_col_O) , norm=colors.LogNorm())
+    plt.plot(wavelength*1e9, tau_close_to_one(wavelength, height, get_optical_depth(wavelength, height ,absorption_cross_section_col_N2, absorption_cross_section_col_O2, absorption_cross_section_col_O)), color='black', linewidth=1)
     plt.xlabel('Wavelength [nm]')
     plt.ylabel('Height [km]')
     plt.colorbar(label='Optical depth')
@@ -96,7 +96,7 @@ print(height.shape)
     return EUV_photon_flux """
 
 
-def EUV_photon_flux(height, wavelength, irradiance):
+""" def EUV_photon_flux(height, wavelength, irradiance):
     EUV_photon_flux = np.zeros((len(height),len(wavelength)), dtype=float)
     for i in range(len(height)):
         for j in range(len(wavelength)):
@@ -104,6 +104,10 @@ def EUV_photon_flux(height, wavelength, irradiance):
     return EUV_photon_flux
 
 plt.plot(wavelength_fism*1e9, EUV_photon_flux(height, wavelength_fism, irradiance))
-plt.show()
-    
+plt.show() """
+
+if __name__ == "__main__":
+    plot_optical_depth(wavelength, height)
+    plot_absorption_cross_section()
+    plot_thermospheric_density()
 
