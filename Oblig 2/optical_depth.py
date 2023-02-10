@@ -82,32 +82,22 @@ def plot_thermospheric_density():
 """ 
 b)
 - Calculate the the EUV-photon flux as function of wavelength and height 
+(The photon flux is given from the thermo-sphere to infinity, i.e. from 80 km to infinity)
 """
 
-# print the irradiance data which corresponds from 85km to infinity 
-print(irradiance.shape)
-print(height.shape)
+# 1: extracting the data from fism file [DONE]
 
-""" def EUV_photon_flux():
-    EUV_photon_flux = np.zeros((len(height),len(wavelength)), dtype=float)
-    for i in range(len(height)):
-        for j in range(len(wavelength)):
-            EUV_photon_flux[i][j] = irradiance[j] * (1 - ( (R_earth + z0)/(R_earth + height[height>=z0]) ) ** 2 * (np.sin(SZA)) ** 2 ) ** (-0.5)
-    return EUV_photon_flux """
+# 2: Interpolate the cross section from wavelengths in 'phot_abs.dat' to wavelengths from 'Fism_daily_hr19990216.dat'
+
+def interpolation(wavelength, absorption_cross_section):
+    ip = sc.interpolate.interp1d(wavelength, absorption_cross_section, kind='linear') 
+    return ip
 
 
-""" def EUV_photon_flux(height, wavelength, irradiance):
-    EUV_photon_flux = np.zeros((len(height),len(wavelength)), dtype=float)
-    for i in range(len(height)):
-        for j in range(len(wavelength)):
-            EUV_photon_flux[i][j] = irradiance[j] * (1 - ( (R_earth + z0)/(R_earth + height[height>=z0]) ) ** 2 * (np.sin(SZA)) ** 2 ) ** (-0.5)
-    return EUV_photon_flux
+# 3: Calculate the optical depth at the interpolated cross section for a specific height and SZA
 
-plt.plot(wavelength_fism*1e9, EUV_photon_flux(height, wavelength_fism, irradiance))
-plt.show() """
+# 4: Calculate the EUV photon flux as function of wavelength and height
 
-if __name__ == "__main__":
-    plot_optical_depth(wavelength, height)
-    plot_absorption_cross_section()
-    plot_thermospheric_density()
+#def EUV_photon_flux():
 
+# 5: 5.	You can use the relationship between the energy of a photon and its frequency or wavelength to convert the flux from W/(nm * m^2) to Photons/(s * cm^2).
