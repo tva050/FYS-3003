@@ -96,7 +96,9 @@ def interpolation(wavelength, absorption_cross_section):
 plt.plot(wavelength*1e9, interpolation(wavelength, absorption_cross_section_col_N2)(wavelength), label='N$_2$')
 plt.show()
 
-# 3: Calculate the optical depth at the interpolated cross section for a specific height and SZA
+# 3: Calculate the optical depth at the interpolated cross section for a specific height and SZAs
+
+
 
 # 4: Calculate the EUV photon flux as function of wavelength and height
 
