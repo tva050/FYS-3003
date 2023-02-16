@@ -16,8 +16,8 @@ R_earth = 6.371e6 # radius of the earth, [m]
 h = 6.626e-34 # Planck constant, [J*s]
 c = 2.998e8 # speed of light, [m/s]
 
-z0 = 1 # [m]
-SZA = 1 *(np.pi/180) # solar zenit angle, [rad]
+z0 = 0 # [m]
+SZA = 0 *(np.pi/180) # solar zenit angle, [rad]
 
 height = height * 1e3 # -> [m]
 density =  N2*1e6 , O2*1e6, O*1e6 # -> [m^-3]
@@ -113,10 +113,9 @@ def _task2_():
     plt.xlabel('Wavelength [nm]')
     plt.ylabel('Height [km]')
     plt.colorbar(label='EUV photon flux [Photons/(s * cm$^2$)]')
-    plt.xlim(4.9,100)
     plt.title("EUV photon flux, SZA = "+ str(round(SZA*(180/np.pi))) + R"$^\circ$")
     plt.show()
 
 if __name__ == "__main__":
     #_task1_()
-    _task2_()
+    #_task2_()
