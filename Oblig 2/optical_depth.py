@@ -103,22 +103,24 @@ def _task2_():
     optical_depth_N2 = optical_depth(density[0], interpolate_N2(wavelength_fism))
     optical_depth_O2 = optical_depth(density[1], interpolate_O2(wavelength_fism))
     optical_depth_O  = optical_depth(density[2],  interpolate_O(wavelength_fism))
+    #print(optical_depth_N2)
     interpolated_optical_depth = optical_depth_N2 + optical_depth_O2 + optical_depth_O
-    print(interpolated_optical_depth)
+    #print(interpolated_optical_depth)
     # 4: Calculate the EUV photon flux as function of wavelength and height
-    """  
     I = irradiance * np.exp(-interpolated_optical_depth)
-    I = ((I * wavelength_fism) / (h * c)) * 1e-4  """ # W/(nm * m^2) -> Photons/(s * cm^2)
+    #print(I)
+    #I = ((I * wavelength_fism) / (h * c)) * 1e-4   # W/(nm * m^2) -> Photons/(s * cm^2)
+    #print(I)
     
-    def photon_flux(z):
+    """ def photon_flux(z):
         I  = np.zeros((len(height),len(wavelength_fism))) 
         for z in range(len(height)):
             I[z,:] = irradiance * np.exp(-interpolated_optical_depth[z,:]) 
             I[z,:] = ((I[z,:] * wavelength_fism) / (h * c)) * 1e-4
-        return I
+        return I """
 
     
-    plt.pcolormesh(wavelength_fism*1e9, height*1e-3, photon_flux(), norm=colors.LogNorm())
+    plt.pcolormesh(wavelength_fism*1e9, height*1e-3, I, norm=colors.LogNorm())
     plt.xlabel('Wavelength [nm]')
     plt.ylabel('Height [km]')
     plt.colorbar(label='EUV photon flux [Photons/(s * cm$^2$)]')
