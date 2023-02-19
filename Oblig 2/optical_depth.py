@@ -20,7 +20,7 @@ c = 299792458 # speed of light (m/s) # radius of the earth, [m]
 
 
 z0 = 0 # [m]
-SZA = 85 *(np.pi/180) # solar zenit angle, [rad]
+SZA = 0 *(np.pi/180) # solar zenit angle, [rad]
 wavelength_fism = wavelength_fism * 1e-9 # -> [m]
 
 height = height * 1e3 # -> [m]
@@ -30,6 +30,7 @@ def _task1_():
     """ 
     Calculate the optical depth as function of wavelength and height
     """
+    global unit_optical_depth
     def optical_depth(wavelength, height, absorption_cross_section, density):
         tau = np.zeros((len(height),len(wavelength)), dtype=float)
         for i in range(len(height)):
@@ -101,6 +102,17 @@ def _task2_(SZA):
                 integral = sc.integrate.trapz(integrand, height[height>=z0])
                 tau[i][j] = integral * absorption_cross_section[j]
         return tau
+    
+    def unit_optical_depth(wavelength, height, optical_depth):
+        def find_nearest(array, value):
+            array = np.array(array)
+            idx = (np.abs(array - value)).argmin()
+            return idx
+        tau = []
+        for i in range(len(wavelength)):
+                index = find_nearest(optical_depth[:,i], 1)
+                tau.append(height[index]*1e-3)
+        return tau
     # 2: Interpolate the cross section from wavelengths in 'phot_abs.dat' to wavelengths from 'Fism_daily_hr19990216.dat'
     interpolate_N2 = sc.interpolate.interp1d(wavelength, absorption_cross_section_N2, kind='linear')
     interpolate_O2 = sc.interpolate.interp1d(wavelength, absorption_cross_section_O2, kind='linear')
@@ -124,8 +136,16 @@ def _task2_(SZA):
     plt.pcolormesh(wavelength_fism*1e9, height*1e-3, photon_flux(height))
     plt.xlabel('Wavelength [nm]')
     plt.ylabel('Height [km]')
-    plt.colorbar(label='EUV-photon flux [$Photons/(s \cdot cm^2$)]')
+    plt.colorbar(label='Irradiance [$Photons/(s \cdot cm^2$)]')
     plt.title("EUV photon flux, SZA = "+ str(round(SZA*(180/np.pi))) + R"$^\circ$")
+    plt.show()
+    
+    plt.pcolormesh(wavelength_fism*1e9, height*1e-3, I, cmap='viridis', shading = 'gouraud', norm=colors.LogNorm(vmin=1e8, vmax=1e10))
+    plt.plot(wavelength_fism*1e9, unit_optical_depth(wavelength_fism, height ,interpolated_optical_depth), color = 'black', linewidth = 1)
+    plt.xlabel('Wavelength (nm)')
+    plt.ylabel('Height (km)')
+    plt.colorbar(label = 'Irradiance [$Photons/(s \cdot cm^2$)]')
+    plt.title('Photon flux, SZA = ' + str(int(round(np.degrees(SZA), 0))) + ' degrees')
     plt.show()
     
 if __name__ == "__main__":
