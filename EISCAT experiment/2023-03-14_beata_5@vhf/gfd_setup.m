@@ -1,0 +1,12 @@
+name_expr= 'beata';
+expver= 2;
+siteid= 4;
+data_path= '/data/beata_lowel_2.1v_NO@vhf';
+result_path= '/analysis/results/AUTO';
+t1=[ 2023 3 14 10 0 0];
+t2=[ 2023 3 14 24 0 0];
+rt= 1;
+intper= 5;
+path_exps= '/analysis/guisdap9/exps/';
+figs=[ 1 1 1 1 1];
+extra= '%Magic_const=1.1;';
