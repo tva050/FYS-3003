@@ -160,7 +160,7 @@ def _task2_(SZA):
     plt.title('Photon flux, SZA = ' + str(int(round(np.degrees(SZA), 0))) + ' degrees')
     plt.show()
 
-    
+
     
 
     
