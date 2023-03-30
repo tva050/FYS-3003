@@ -20,7 +20,7 @@ c = 299792458 # speed of light (m/s) # radius of the earth, [m]
 
 
 z0 = 0 # [m]
-SZA = 0 *(np.pi/180) # solar zenit angle, [rad]
+SZA = 40 *(np.pi/180) # solar zenit angle, [rad]
 wavelength_fism = wavelength_fism * 1e-9 # -> [m]
 
 height = height * 1e3 # -> [m]
@@ -152,7 +152,7 @@ def _task2_(SZA):
     plt.show() """
     
     # Photon flux at different heights
-    """ plt.plot(wavelength_fism*1e9, I[600], label = '600 km')
+    """  plt.plot(wavelength_fism*1e9, I[600], label = '600 km')
     plt.plot(wavelength_fism*1e9, I[400], label = '400 km', color = 'teal')
     plt.plot(wavelength_fism*1e9, I[200], label = '200 km', color = 'black')
     plt.legend()
@@ -161,12 +161,14 @@ def _task2_(SZA):
     plt.ylabel('EUV flux (Photons/(s * cm^2))')
     plt.title('Photon flux, SZA = ' + str(int(round(np.degrees(SZA), 0))) + ' degrees')
     plt.show() """
+    
+    #ir = np.loadtxt("I_SZA10.csv", delimiter=",")
+    
+ 
 
 
     
-    f = open("I_SZA0.txt", "a")
-    print(photon_flux(range(100,600)), file=f, end = ' ')
-    f.close()
+    np.savetxt("I_SZA40.csv", I[range(0,600)], delimiter=",") #<- Save the photon flux at different heights to a csv file
     
 if __name__ == "__main__":
     #_task1_()
