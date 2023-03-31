@@ -20,7 +20,7 @@ c = 299792458 # speed of light (m/s) # radius of the earth, [m]
 
 
 z0 = 0 # [m]
-SZA = 40 *(np.pi/180) # solar zenit angle, [rad]
+SZA = 75 *(np.pi/180) # solar zenit angle, [rad]
 wavelength_fism = wavelength_fism * 1e-9 # -> [m]
 
 height = height * 1e3 # -> [m]
@@ -168,7 +168,7 @@ def _task2_(SZA):
 
 
     
-    np.savetxt("I_SZA40.csv", I[range(0,600)], delimiter=",") #<- Save the photon flux at different heights to a csv file
+    np.savetxt("I_SZA75.csv", I[range(0,600)], delimiter=",") #<- Save the photon flux at different heights to a csv file
     
 if __name__ == "__main__":
     #_task1_()
