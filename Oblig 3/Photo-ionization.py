@@ -21,13 +21,20 @@ wavelength, absorption_cross_section_N2, absorption_cross_section_O2, absorption
 wavelength_fism, irradiance = np.loadtxt("Data\Fism_daily_hr19990216.dat",  unpack = True, skiprows = 51, max_rows=949, delimiter=',', usecols = (1, 2))
 
 # Converting to SI units
-wavelength_fism *= 1e-9
+wavelength_fism *= 1e-9 # m
 height *= 1e3
 
 O, N2, O2 = O/1e6, N2/1e6, O2/1e6
 
-# treshold wavelengths
-wavelength_treshold = 0.1e-6
+# threshold wavelengths
+wavelength_treshold = 0.1e-6 # m
+
+# ionization threshold
+N2_treshold = 7.96e-8 # Ångström -> m
+O2_treshold = 1.026e-7 # Ångström -> m
+O_treshold = 9.11e-8 # Ångström -> m
+
+
 
 # a) Make functions that calculate the production rate of photo-electrons as a function of altitude and energy.
 
@@ -41,4 +48,14 @@ def ionisation_profile(I, wavelength, treshold, sigma, N):
         integral  = np.trapz(integrand, wavelength[wavelength <= treshold])
         q[i] = integral * N[i]
     return q*1e9
+
+q_O = ionisation_profile(all_I[0], wavelength_fism, O_treshold, absorption_cross_section_O, O)*1e-6
+
+plt.plot(q_O, height*1e-3)
+plt.xlabel("q [cm$^{-3}$ s$^{-1}$]")
+plt.ylabel("Height [km]")
+plt.title("O ionisation profile")
+plt.show()
+
+
 
