@@ -5,15 +5,15 @@ import scipy as sc
 import numpy as np
 
 """ ---------------------------- Import data ---------------------------- """
-I_SZA0  = np.loadtxt(os.path.join("Data", "I_SZA0.csv"), unpack = True, delimiter=",")
-I_SZA10 = np.loadtxt(os.path.join("Data", "I_SZA10.csv"), unpack = True, delimiter=",")
-I_SZA20 = np.loadtxt(os.path.join("Data", "I_SZA20.csv"), unpack = True, delimiter=",")
-I_SZA30 = np.loadtxt(os.path.join("Data", "I_SZA30.csv"), unpack = True, delimiter=",")
-I_SZA40 = np.loadtxt(os.path.join("Data", "I_SZA40.csv"), unpack = True, delimiter=",")
-I_SZA50 = np.loadtxt(os.path.join("Data", "I_SZA50.csv"), unpack = True, delimiter=",")
-I_SZA75 = np.loadtxt(os.path.join("Data", "I_SZA75.csv"), unpack = True, delimiter=",")
+I_SZA0  = np.loadtxt(os.path.join("Data", "I_SZA0.csv"), delimiter=",")
+I_SZA10 = np.loadtxt(os.path.join("Data", "I_SZA10.csv"), delimiter=",")
+I_SZA20 = np.loadtxt(os.path.join("Data", "I_SZA20.csv"), delimiter=",")
+I_SZA30 = np.loadtxt(os.path.join("Data", "I_SZA30.csv"), delimiter=",")
+I_SZA40 = np.loadtxt(os.path.join("Data", "I_SZA40.csv"), delimiter=",")
+I_SZA50 = np.loadtxt(os.path.join("Data", "I_SZA50.csv"), delimiter=",")
+I_SZA75 = np.loadtxt(os.path.join("Data", "I_SZA75.csv"), delimiter=",")
 
-all_I = np.array([I_SZA0, I_SZA10, I_SZA20, I_SZA30, I_SZA40, I_SZA50, I_SZA75])
+all_I = np.array([I_SZA0, I_SZA10, I_SZA20, I_SZA30, I_SZA40, I_SZA50, I_SZA75])*1e4
 szas = np.array([0, 10, 20, 30, 40, 50, 75])
 
 height, O, N2, O2 = np.loadtxt(r'Data\MSIS.dat', unpack = True ,skiprows=18, usecols= (0, 1, 2, 3))
@@ -24,7 +24,7 @@ wavelength_fism, irradiance = np.loadtxt("Data\Fism_daily_hr19990216.dat",  unpa
 wavelength_fism *= 1e-9 # m
 height *= 1e3
 
-O, N2, O2 = O/1e6, N2/1e6, O2/1e6
+O, N2, O2 = O*1e6, N2*1e6, O2*1e6
 
 # threshold wavelengths
 wavelength_treshold = 0.1e-6 # m
