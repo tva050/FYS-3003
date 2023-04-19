@@ -135,24 +135,24 @@ def _task2_(SZA):
     
     
 
-    """ plt.pcolormesh(wavelength_fism*1e9, height*1e-3, photon_flux(height))
+    plt.pcolormesh(wavelength_fism*1e9, height*1e-3, photon_flux(height))
     plt.xlabel('Wavelength [nm]')
     plt.ylabel('Height [km]')
     plt.colorbar(label='Irradiance [$Photons/(s \cdot cm^2$)]')
     plt.title("EUV photon flux, SZA = "+ str(round(SZA*(180/np.pi))) + R"$^\circ$")
-    plt.show() """
+    plt.show()
     
     # Photon flux as function of wavelength and height, with unit optical depth
-    """ plt.pcolormesh(wavelength_fism*1e9, height*1e-3, I, cmap='viridis', shading = 'gouraud', norm=colors.LogNorm(vmin=1e8, vmax=1e10))
+    plt.pcolormesh(wavelength_fism*1e9, height*1e-3, I, cmap='viridis', shading = 'gouraud', norm=colors.LogNorm(vmin=1e8, vmax=1e10))
     plt.plot(wavelength_fism*1e9, unit_optical_depth(wavelength_fism, height ,interpolated_optical_depth), color = 'black', linewidth = 1)
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('Height (km)')
     plt.colorbar(label = 'Irradiance [$Photons/(s \cdot cm^2$)]')
     plt.title('Photon flux, SZA = ' + str(int(round(np.degrees(SZA), 0))) + ' degrees')
-    plt.show() """
+    plt.show()
     
     # Photon flux at different heights
-    """  plt.plot(wavelength_fism*1e9, I[600], label = '600 km')
+    plt.plot(wavelength_fism*1e9, I[600], label = '600 km')
     plt.plot(wavelength_fism*1e9, I[400], label = '400 km', color = 'teal')
     plt.plot(wavelength_fism*1e9, I[200], label = '200 km', color = 'black')
     plt.legend()
@@ -160,7 +160,7 @@ def _task2_(SZA):
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('EUV flux (Photons/(s * cm^2))')
     plt.title('Photon flux, SZA = ' + str(int(round(np.degrees(SZA), 0))) + ' degrees')
-    plt.show() """
+    plt.show()
     
     #ir = np.loadtxt("I_SZA10.csv", delimiter=",")
     
@@ -168,7 +168,7 @@ def _task2_(SZA):
 
 
     
-    np.savetxt("I_SZA75.csv", I[range(0,600)], delimiter=",") #<- Save the photon flux at different heights to a csv file
+    #np.savetxt("I_SZA75.csv", I[range(0,600)], delimiter=",") #<- Save the photon flux at different heights to a csv file
     
 if __name__ == "__main__":
     #_task1_()
