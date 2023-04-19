@@ -15,7 +15,7 @@ I_SZA75 = np.loadtxt(os.path.join("Data", "I_SZA75.csv"), delimiter=",")
 
 all_I = np.array([I_SZA0, I_SZA10, I_SZA20, I_SZA30, I_SZA40, I_SZA50, I_SZA75])*1e4
 szas = np.array([0, 10, 20, 30, 40, 50, 75])
-print(I_SZA0.shape)
+
 
 height, O, N2, O2 = np.loadtxt(r'Data\MSIS.dat', unpack = True ,skiprows=18, usecols= (0, 1, 2, 3))
 wavelength, absorption_cross_section_N2, absorption_cross_section_O2, absorption_cross_section_O = np.loadtxt("Data\phot_abs.dat", skiprows=8, unpack=True)
@@ -52,21 +52,25 @@ absorption_cross_section_O  = interpolate_O(wavelength_fism)
 # a) Make functions that calculate the production rate of photo-electrons as a function of altitude and energy.
 
 
-# b) Make functions that calculate the photo-ionization profiles as a function of altitude
-print(height.shape[0])
+# b) Make functions that calculate the photo-ionization profiles as a function of altitude (Eq. 2.3.4 M H Rees)
 def ionisation_profile(I, wavelength, treshold, sigma, N):
     q = np.zeros(height.shape[0])
     for i in range(height.shape[0]):
-        wavelength_mask = wavelength <= treshold
-        integrand = I[i, wavelength_mask] * sigma[wavelength_mask]
-        integral  = sc.integrate.trapz(integrand, wavelength[wavelength_mask])
+        wavelength_ = wavelength <= treshold
+        integrand = I[i, wavelength_] * sigma[wavelength_]
+        integral  = sc.integrate.trapz(integrand, wavelength[wavelength_])
         q[i] = integral * N[i]
     return q*1e9
 
+q_N2 = ionisation_profile(all_I[0], wavelength_fism, N2_treshold, absorption_cross_section_N2, N2)*1e-6
+q_O2 = ionisation_profile(all_I[0], wavelength_fism, O2_treshold, absorption_cross_section_O2, O2)*1e-6
 q_O = ionisation_profile(all_I[0], wavelength_fism, O_treshold, absorption_cross_section_O, O)*1e-6
 
 
+
 plt.plot(q_O, height*1e-3)
+plt.plot(q_O2, height*1e-3)
+plt.plot(q_N2, height*1e-3)
 plt.xlabel("q [cm$^{-3}$ s$^{-1}$]")
 plt.ylabel("Height [km]")
 plt.title("O ionisation profile")
