@@ -135,7 +135,7 @@ def _task2_(SZA):
     
     
 
-    plt.pcolormesh(wavelength_fism*1e9, height*1e-3, photon_flux(height))
+    """ plt.pcolormesh(wavelength_fism*1e9, height*1e-3, photon_flux(height))
     plt.xlabel('Wavelength [nm]')
     plt.ylabel('Height [km]')
     plt.colorbar(label='Irradiance [$Photons/(s \cdot cm^2$)]')
@@ -160,15 +160,10 @@ def _task2_(SZA):
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('EUV flux (Photons/(s * cm^2))')
     plt.title('Photon flux, SZA = ' + str(int(round(np.degrees(SZA), 0))) + ' degrees')
-    plt.show()
+    plt.show() """
     
-    #ir = np.loadtxt("I_SZA10.csv", delimiter=",")
     
- 
-
-
-    
-    #np.savetxt("I_SZA75.csv", I[range(0,600)], delimiter=",") #<- Save the photon flux at different heights to a csv file
+    np.savetxt("I_SZA75.csv", I[range(0,601)], delimiter=",") #<- Save the photon flux at different heights to a csv file
     
 if __name__ == "__main__":
     #_task1_()
