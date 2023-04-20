@@ -4,6 +4,8 @@ import os
 import scipy as sc
 import numpy as np
 
+plt.style.use('ggplot')
+
 """ ---------------------------- Import data ---------------------------- """
 I_SZA0  = np.loadtxt(os.path.join("Data", "I_SZA0.csv"), delimiter=",")
 I_SZA10 = np.loadtxt(os.path.join("Data", "I_SZA10.csv"), delimiter=",")
@@ -31,9 +33,9 @@ O, N2, O2 = O*1e6, N2*1e6, O2*1e6
 wavelength_treshold = 0.1e-6 # m
 
 # ionization threshold
-N2_treshold = 7.96e-8 # Ångström -> m
-O2_treshold = 1.026e-7 # Ångström -> m
-O_treshold = 9.11e-8 # Ångström -> m
+N2_threshold = 7.96e-8 # Ångström -> m
+O2_threshold = 1.026e-7 # Ångström -> m
+O_threshold = 9.11e-8 # Ångström -> m
 
 
 #___________________________________________________________
@@ -45,35 +47,61 @@ interpolate_O  = sc.interpolate.interp1d(wavelength, absorption_cross_section_O,
 absorption_cross_section_N2 = interpolate_N2(wavelength_fism)
 absorption_cross_section_O2 = interpolate_O2(wavelength_fism)
 absorption_cross_section_O  = interpolate_O(wavelength_fism)
-
-
-
 #___________________________________________________________
-# a) Make functions that calculate the production rate of photo-electrons as a function of altitude and energy.
 
+
+# a) Make functions that calculate the production rate of photo-electrons as a function of altitude and energy.
+def production_rate(I, wavelength, threshold, sigma, n):
+    h = 6.626e-34 # J s planck constant
+    c = 3e8 # m/s speed of light
+    eV = 6.242e18 # 1 eV = 6.242e18 J
+
+    E = h*c * (1 / wavelength[wavelength <= threshold] - 1/threshold)*eV
+    
+    P = n[200] * sigma * I[200]
+    P = P[wavelength <= threshold]*1e-6
+    return P, E
+
+P_N2, E_N2 = production_rate(all_I[0], wavelength_fism, N2_threshold, absorption_cross_section_N2, N2)
+P_O2, E_O2 = production_rate(all_I[0], wavelength_fism, O2_threshold, absorption_cross_section_O2, O2)
+P_O, E_O = production_rate(all_I[0], wavelength_fism, O_threshold, absorption_cross_section_O, O)
+
+energy = np.linspace(np.min(E_O), np.max(E_O2), 1000)
+
+P_N2_interpolated = sc.interpolate.interp1d(E_N2, P_N2, fill_value =  ,kind='linear')
+P_O2_interpolated = sc.interpolate.interp1d(E_O2, P_O2, kind='linear')
+P_O_interpolated  = sc.interpolate.interp1d(E_O, P_O, kind='linear')
+
+P_N2 = P_N2_interpolated(energy)
+P_O2 = P_O2_interpolated(energy)
+P_O  = P_O_interpolated(energy)
+
+plt.plot(energy, P_N2 + P_O2 + P_O)
+plt.show()
 
 # b) Make functions that calculate the photo-ionization profiles as a function of altitude (Eq. 2.3.4 M H Rees)
-def ionisation_profile(I, wavelength, treshold, sigma, N):
+def ionization_profile(I, wavelength, threshold, sigma, n):
     q = np.zeros(height.shape[0])
     for i in range(height.shape[0]):
-        wavelength_ = wavelength <= treshold
+        wavelength_ = wavelength <= threshold
         integrand = I[i, wavelength_] * sigma[wavelength_]
         integral  = sc.integrate.trapz(integrand, wavelength[wavelength_])
-        q[i] = integral * N[i]
+        q[i] = integral * n[i]
     return q*1e9
 
-q_N2 = ionisation_profile(all_I[0], wavelength_fism, N2_treshold, absorption_cross_section_N2, N2)*1e-6
-q_O2 = ionisation_profile(all_I[0], wavelength_fism, O2_treshold, absorption_cross_section_O2, O2)*1e-6
-q_O = ionisation_profile(all_I[0], wavelength_fism, O_treshold, absorption_cross_section_O, O)*1e-6
+q_N2 = ionization_profile(all_I[0], wavelength_fism, N2_threshold, absorption_cross_section_N2, N2)*1e-6
+q_O2 = ionization_profile(all_I[0], wavelength_fism, O2_threshold, absorption_cross_section_O2, O2)*1e-6
+q_O = ionization_profile(all_I[0], wavelength_fism, O_threshold, absorption_cross_section_O, O)*1e-6
+total_q = q_N2 + q_O2 + q_O
 
-
-
-plt.plot(q_O, height*1e-3)
-plt.plot(q_O2, height*1e-3)
-plt.plot(q_N2, height*1e-3)
+plt.plot(q_O, height*1e-3, label="O")
+plt.plot(q_O2, height*1e-3, label="O2")
+plt.plot(q_N2, height*1e-3, label="N2")
+plt.plot(total_q, height*1e-3, label="Total", color = "teal")
 plt.xlabel("q [cm$^{-3}$ s$^{-1}$]")
 plt.ylabel("Height [km]")
-plt.title("O ionisation profile")
+plt.title("photo-ionization rate")
+plt.legend()
 plt.show()
 
 
