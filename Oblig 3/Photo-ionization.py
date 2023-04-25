@@ -37,6 +37,8 @@ N2_threshold = 7.96e-8 # Ångström -> m
 O2_threshold = 1.026e-7 # Ångström -> m
 O_threshold = 9.11e-8 # Ångström -> m
 
+# Altitude for the production rate
+
 
 #___________________________________________________________
 #Since data have different sizes, we need to interpolate the data to the same size
@@ -59,7 +61,7 @@ def production_rate(I, wavelength, threshold, sigma, n):
     E = h*c * (1 / wavelength[wavelength <= threshold] - 1/threshold)*eV
     
     P = n[200] * sigma * I[200]
-    P = P[wavelength <= threshold]*1e-6
+    P = P[wavelength <= threshold]*1e-6 # -> cm^-3 s^-1 
     return P, E
 
 P_N2, E_N2 = production_rate(all_I[0], wavelength_fism, N2_threshold, absorption_cross_section_N2, N2)
@@ -68,16 +70,18 @@ P_O, E_O = production_rate(all_I[0], wavelength_fism, O_threshold, absorption_cr
 
 energy = np.linspace(np.min(E_O), np.max(E_O2), 1000)
 
-P_N2_interpolated = sc.interpolate.interp1d(E_N2, P_N2, fill_value =  ,kind='linear')
-P_O2_interpolated = sc.interpolate.interp1d(E_O2, P_O2, kind='linear')
-P_O_interpolated  = sc.interpolate.interp1d(E_O, P_O, kind='linear')
+P_N2_interpolated = sc.interpolate.interp1d(E_N2, P_N2, fill_value = "extrapolate", kind='linear')
+P_O2_interpolated = sc.interpolate.interp1d(E_O2, P_O2, fill_value = "extrapolate",kind='linear')
+P_O_interpolated  = sc.interpolate.interp1d(E_O, P_O, fill_value = "extrapolate",kind='linear')
 
 P_N2 = P_N2_interpolated(energy)
 P_O2 = P_O2_interpolated(energy)
 P_O  = P_O_interpolated(energy)
 
-plt.plot(energy, P_N2 + P_O2 + P_O)
+#plt.plot(energy, P_N2 + P_O2 + P_O)
+plt.pcolormesh(height.astype(int), P_N2+P_O2+P_O, energy)
 plt.show()
+
 
 # b) Make functions that calculate the photo-ionization profiles as a function of altitude (Eq. 2.3.4 M H Rees)
 def ionization_profile(I, wavelength, threshold, sigma, n):
@@ -95,8 +99,8 @@ q_O = ionization_profile(all_I[0], wavelength_fism, O_threshold, absorption_cros
 total_q = q_N2 + q_O2 + q_O
 
 plt.plot(q_O, height*1e-3, label="O")
-plt.plot(q_O2, height*1e-3, label="O2")
-plt.plot(q_N2, height*1e-3, label="N2")
+plt.plot(q_O2, height*1e-3, label="O2", color = "orange")
+plt.plot(q_N2, height*1e-3, label="N2", color = "gray")
 plt.plot(total_q, height*1e-3, label="Total", color = "teal")
 plt.xlabel("q [cm$^{-3}$ s$^{-1}$]")
 plt.ylabel("Height [km]")
