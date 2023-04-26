@@ -79,13 +79,13 @@ P_O2 = P_O2_interpolated(energy)
 P_O  = P_O_interpolated(energy)
 
 #plt.plot(energy, P_N2 + P_O2 + P_O)
-plt.pcolormesh(height.astype(int), P_N2+P_O2+P_O, energy)
-plt.show()
+""" plt.pcolormesh(height.astype(int), P_N2+P_O2+P_O, energy)
+plt.show() """
 
 
 # b) Make functions that calculate the photo-ionization profiles as a function of altitude (Eq. 2.3.4 M H Rees)
 def ionization_profile(I, wavelength, threshold, sigma, n):
-    q = np.zeros(height.shape[0])
+    q = np.zeros(height.shape[0]) 
     for i in range(height.shape[0]):
         wavelength_ = wavelength <= threshold
         integrand = I[i, wavelength_] * sigma[wavelength_]
@@ -93,9 +93,9 @@ def ionization_profile(I, wavelength, threshold, sigma, n):
         q[i] = integral * n[i]
     return q*1e9
 
-q_N2 = ionization_profile(all_I[0], wavelength_fism, N2_threshold, absorption_cross_section_N2, N2)*1e-6
-q_O2 = ionization_profile(all_I[0], wavelength_fism, O2_threshold, absorption_cross_section_O2, O2)*1e-6
-q_O = ionization_profile(all_I[0], wavelength_fism, O_threshold, absorption_cross_section_O, O)*1e-6
+q_N2 = ionization_profile(all_I[6], wavelength_fism, N2_threshold, absorption_cross_section_N2, N2)*1e-6
+q_O2 = ionization_profile(all_I[6], wavelength_fism, O2_threshold, absorption_cross_section_O2, O2)*1e-6
+q_O = ionization_profile(all_I[6], wavelength_fism, O_threshold, absorption_cross_section_O, O)*1e-6
 total_q = q_N2 + q_O2 + q_O
 
 plt.plot(q_O, height*1e-3, label="O")
@@ -104,7 +104,7 @@ plt.plot(q_N2, height*1e-3, label="N2", color = "gray")
 plt.plot(total_q, height*1e-3, label="Total", color = "teal")
 plt.xlabel("q [cm$^{-3}$ s$^{-1}$]")
 plt.ylabel("Height [km]")
-plt.title("photo-ionization rate")
+plt.title("photo-ionization rate SZA = 75$^\circ$")
 plt.legend()
 plt.show()
 
