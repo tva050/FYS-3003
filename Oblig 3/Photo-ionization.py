@@ -78,7 +78,13 @@ P_N2 = P_N2_interpolated(energy)
 P_O2 = P_O2_interpolated(energy)
 P_O  = P_O_interpolated(energy)
 
-#plt.plot(energy, P_N2 + P_O2 + P_O)
+plt.plot(energy, P_N2 + P_O2 + P_O)
+plt.xlabel("Energy [eV]")
+plt.ylabel("Production rate [cm^-3 s^-1]")
+plt.title("Production rate of photo-electrons as a function of energy")
+plt.xscale("log")
+plt.yscale("log")
+plt.show()
 """ plt.pcolormesh(height.astype(int), P_N2+P_O2+P_O, energy)
 plt.show() """
 
