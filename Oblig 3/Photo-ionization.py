@@ -82,26 +82,97 @@ def phot_e_prod(altitude, all_I):
     p = P_N2 + P_O2 + P_O
     return p, energy 
 
-energies = phot_e_prod(0, all_I[0])[1]
+""" energies = phot_e_prod(0, all_I[0])[1]
 p = np.zeros((len(height), len(energies)))
 for z in range(len(height)): 
     p[z] = phot_e_prod(z, all_I[0])[0]
 
-""" plt.plot(energy, P_N2 + P_O2 + P_O)
-plt.xlabel("Energy [eV]")
-plt.ylabel("Production rate [cm^-3 s^-1]")
-plt.title("Production rate of photo-electrons as a function of energy")
-plt.xscale("log")
-plt.yscale("log")
-plt.show() """
-
-
 plt.pcolormesh(energies, height*1e-3, p, norm = colors.LogNorm(vmin = 1e3, vmax = 1e-1))
 plt.xlabel("Energy [eV]")
 plt.ylabel("Altitude [km]")
-plt.title("Production rate of photo-electrons SZA = 0$^\circ$")
+plt.title("Production rate of photo-electrons SZA = 75$^\circ$")
 plt.colorbar(label = "Production rate [cm$^{-3}$ s$^{-1}$]")
+plt.show() """
+
+p100_sza0 = phot_e_prod(150, all_I[0])[0]
+energy100_sza0 = phot_e_prod(150, all_I[0])[1]
+p100_sza20 = phot_e_prod(150, all_I[2])[0]
+energy100_sza20 = phot_e_prod(150, all_I[2])[1]
+p100_sza40 = phot_e_prod(150, all_I[4])[0]
+energy100_sza40 = phot_e_prod(150, all_I[4])[1]
+p100_sza75 = phot_e_prod(150, all_I[6])[0]
+energy100_sza75 = phot_e_prod(150, all_I[6])[1]
+
+p200_sza0 = phot_e_prod(200, all_I[0])[0]
+energy200_sza0 = phot_e_prod(200, all_I[0])[1]
+p200_sza20 = phot_e_prod(200, all_I[2])[0]
+energy200_sza20 = phot_e_prod(200, all_I[2])[1]
+p200_sza40 = phot_e_prod(200, all_I[4])[0]
+energy200_sza40 = phot_e_prod(200, all_I[4])[1]
+p200_sza75 = phot_e_prod(200, all_I[6])[0]
+energy200_sza75 = phot_e_prod(200, all_I[6])[1]
+
+p350_sza0 = phot_e_prod(350, all_I[0])[0]
+energy350_sza0 = phot_e_prod(350, all_I[0])[1]
+p350_sza20 = phot_e_prod(350, all_I[2])[0]
+energy350_sza20 = phot_e_prod(350, all_I[2])[1]
+p350_sza40 = phot_e_prod(350, all_I[4])[0]
+energy350_sza40 = phot_e_prod(350, all_I[4])[1]
+p350_sza75 = phot_e_prod(350, all_I[6])[0]
+energy350_sza75 = phot_e_prod(350, all_I[6])[1]
+
+plt.plot(energy100_sza0, p100_sza0, label = "SZA = 0$^\circ$")
+plt.plot(energy100_sza20, p100_sza20, label = "SZA = 20$^\circ$")
+plt.plot(energy100_sza40, p100_sza40, label = "SZA = 40$^\circ$")
+plt.plot(energy100_sza75, p100_sza75, label = "SZA = 75$^\circ$")
+plt.xlabel("Energy [eV]")
+plt.ylabel("Production rate [cm$^{-3}$ s$^{-1}$]")
+plt.xscale("log")
+plt.yscale("log")
+plt.title("Production rate of photo-electrons at 150 km altitude")
+plt.legend()
 plt.show()
+
+plt.plot(energy200_sza0, p200_sza0, label = "SZA = 0$^\circ$")
+plt.plot(energy200_sza20, p200_sza20, label = "SZA = 20$^\circ$", color = "gray")
+plt.plot(energy200_sza40, p200_sza40, label = "SZA = 40$^\circ$", color = "orange")
+plt.plot(energy200_sza75, p200_sza75, label = "SZA = 75$^\circ$", color = "teal")
+plt.xlabel("Energy [eV]")
+plt.ylabel("Production rate [cm$^{-3}$ s$^{-1}$]")
+plt.xscale("log")
+plt.yscale("log")
+plt.title("Production rate of photo-electrons at 200 km altitude")
+plt.legend()
+plt.show()
+
+plt.plot(energy350_sza0, p350_sza0, label = "SZA = 0$^\circ$")
+plt.plot(energy350_sza20, p350_sza20, label = "SZA = 20$^\circ$", color = "gray")
+plt.plot(energy350_sza40, p350_sza40, label = "SZA = 40$^\circ$", color = "orange")
+plt.plot(energy350_sza75, p350_sza75, label = "SZA = 75$^\circ$", color = "teal")
+plt.xlabel("Energy [eV]")
+plt.ylabel("Production rate [cm$^{-3}$ s$^{-1}$]")
+plt.xscale("log")
+plt.yscale("log")
+plt.title("Production rate of photo-electrons at 350 km altitude")
+plt.legend()
+plt.show()
+
+
+""" altitudes = np.array([125, 140, 204, 392]) # Same altitudes as in figure 2.5.1 in M H Rees
+energye = np.linspace(np.min(energies), np.max(energies), 1000)
+
+plt.plot(energies, p[altitudes[0]], label = "Altitude = 125 km")
+plt.plot(energies, p[altitudes[1]], label = "Altitude = 140 km", color = "gray")
+plt.plot(energies, p[altitudes[2]], label = "Altitude = 204 km", color = "orange")
+plt.plot(energies, p[altitudes[3]], label = "Altitude = 392 km", color = "teal")
+plt.xlabel("Energy [eV]")
+plt.ylabel("Production rate [cm$^{-3}$ s$^{-1}$]")
+plt.title("Production rate of photo-electrons as a function of energy")
+plt.xscale("log")
+plt.yscale("log")
+plt.legend() """
+#plt.show()
+
 
 
 # b) Make functions that calculate the photo-ionization profiles as a function of altitude (Eq. 2.3.4 M H Rees)
