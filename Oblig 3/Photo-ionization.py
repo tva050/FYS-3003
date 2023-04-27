@@ -53,40 +53,55 @@ absorption_cross_section_O  = interpolate_O(wavelength_fism)
 
 
 # a) Make functions that calculate the production rate of photo-electrons as a function of altitude and energy.
-def production_rate(I, wavelength, threshold, sigma, n):
+def production_rate(I, wavelength, threshold, sigma, n, alititude):
     h = 6.626e-34 # J s planck constant
     c = 3e8 # m/s speed of light
     eV = 6.242e18 # 1 eV = 6.242e18 J
 
     E = h*c * (1 / wavelength[wavelength <= threshold] - 1/threshold)*eV
     
-    P = n[200] * sigma * I[200]
+    P = n[alititude] * sigma * I[alititude]
     P = P[wavelength <= threshold]*1e-6 # -> cm^-3 s^-1 
     return P, E
 
-P_N2, E_N2 = production_rate(all_I[0], wavelength_fism, N2_threshold, absorption_cross_section_N2, N2)
-P_O2, E_O2 = production_rate(all_I[0], wavelength_fism, O2_threshold, absorption_cross_section_O2, O2)
-P_O, E_O = production_rate(all_I[0], wavelength_fism, O_threshold, absorption_cross_section_O, O)
+def phot_e_prod(altitude, all_I):
+    P_N2, E_N2 = production_rate(all_I, wavelength_fism, N2_threshold, absorption_cross_section_N2, N2, altitude)
+    P_O2, E_O2 = production_rate(all_I, wavelength_fism, O2_threshold, absorption_cross_section_O2, O2, altitude)
+    P_O, E_O = production_rate(all_I, wavelength_fism, O_threshold, absorption_cross_section_O, O, altitude)
+    
+    energy = np.linspace(np.min(E_O), np.max(E_O2), 1000)
 
-energy = np.linspace(np.min(E_O), np.max(E_O2), 1000)
+    P_N2_interpolated = sc.interpolate.interp1d(E_N2, P_N2, fill_value = "extrapolate", kind='linear')
+    P_O2_interpolated = sc.interpolate.interp1d(E_O2, P_O2, fill_value = "extrapolate",kind='linear')
+    P_O_interpolated  = sc.interpolate.interp1d(E_O, P_O, fill_value = "extrapolate",kind='linear')
 
-P_N2_interpolated = sc.interpolate.interp1d(E_N2, P_N2, fill_value = "extrapolate", kind='linear')
-P_O2_interpolated = sc.interpolate.interp1d(E_O2, P_O2, fill_value = "extrapolate",kind='linear')
-P_O_interpolated  = sc.interpolate.interp1d(E_O, P_O, fill_value = "extrapolate",kind='linear')
+    P_N2 = P_N2_interpolated(energy)
+    P_O2 = P_O2_interpolated(energy)
+    P_O  = P_O_interpolated(energy)
 
-P_N2 = P_N2_interpolated(energy)
-P_O2 = P_O2_interpolated(energy)
-P_O  = P_O_interpolated(energy)
+    p = P_N2 + P_O2 + P_O
+    return p, energy 
 
-plt.plot(energy, P_N2 + P_O2 + P_O)
+energies = phot_e_prod(0, all_I[0])[1]
+p = np.zeros((len(height), len(energies)))
+for z in range(len(height)): 
+    p[z] = phot_e_prod(z, all_I[0])[0]
+
+""" plt.plot(energy, P_N2 + P_O2 + P_O)
 plt.xlabel("Energy [eV]")
 plt.ylabel("Production rate [cm^-3 s^-1]")
 plt.title("Production rate of photo-electrons as a function of energy")
 plt.xscale("log")
 plt.yscale("log")
-plt.show()
-""" plt.pcolormesh(height.astype(int), P_N2+P_O2+P_O, energy)
 plt.show() """
+
+
+plt.pcolormesh(energies, height*1e-3, p, norm = colors.LogNorm(vmin = 1e3, vmax = 1e-1))
+plt.xlabel("Energy [eV]")
+plt.ylabel("Altitude [km]")
+plt.title("Production rate of photo-electrons SZA = 0$^\circ$")
+plt.colorbar(label = "Production rate [cm$^{-3}$ s$^{-1}$]")
+plt.show()
 
 
 # b) Make functions that calculate the photo-ionization profiles as a function of altitude (Eq. 2.3.4 M H Rees)
