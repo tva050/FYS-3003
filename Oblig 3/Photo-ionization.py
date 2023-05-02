@@ -122,9 +122,9 @@ p350_sza75 = phot_e_prod(350, all_I[6])[0]
 energy350_sza75 = phot_e_prod(350, all_I[6])[1]
 
 plt.plot(energy100_sza0, p100_sza0, label = "SZA = 0$^\circ$")
-plt.plot(energy100_sza20, p100_sza20, label = "SZA = 20$^\circ$")
-plt.plot(energy100_sza40, p100_sza40, label = "SZA = 40$^\circ$")
-plt.plot(energy100_sza75, p100_sza75, label = "SZA = 75$^\circ$")
+plt.plot(energy100_sza20, p100_sza20, label = "SZA = 20$^\circ$", color = "gray")
+plt.plot(energy100_sza40, p100_sza40, label = "SZA = 40$^\circ$", color = "orange")
+plt.plot(energy100_sza75, p100_sza75, label = "SZA = 75$^\circ$", color = "teal")
 plt.xlabel("Energy [eV]")
 plt.ylabel("Production rate [cm$^{-3}$ s$^{-1}$]")
 plt.xscale("log")
@@ -201,4 +201,10 @@ plt.legend()
 plt.show()
 
 
+# Chapman 
 
+def chapman(q, H, chi):
+    q_m0 = np.max(q)
+    z_m0 = height[np.argmax(q)]
+    
+    
