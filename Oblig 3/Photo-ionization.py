@@ -185,9 +185,9 @@ def ionization_profile(I, wavelength, threshold, sigma, n):
         q[i] = integral * n[i]
     return q*1e9
 
-q_N2 = ionization_profile(all_I[6], wavelength_fism, N2_threshold, absorption_cross_section_N2, N2)*1e-6
-q_O2 = ionization_profile(all_I[6], wavelength_fism, O2_threshold, absorption_cross_section_O2, O2)*1e-6
-q_O = ionization_profile(all_I[6], wavelength_fism, O_threshold, absorption_cross_section_O, O)*1e-6
+q_N2 = ionization_profile(all_I[0], wavelength_fism, N2_threshold, absorption_cross_section_N2, N2)*1e-6
+q_O2 = ionization_profile(all_I[0], wavelength_fism, O2_threshold, absorption_cross_section_O2, O2)*1e-6
+q_O = ionization_profile(all_I[0], wavelength_fism, O_threshold, absorption_cross_section_O, O)*1e-6
 total_q = q_N2 + q_O2 + q_O
 
 plt.plot(q_O, height*1e-3, label="O")
@@ -201,10 +201,21 @@ plt.legend()
 plt.show()
 
 
+
 # Chapman 
 
 def chapman(q, H, chi):
     q_m0 = np.max(q)
     z_m0 = height[np.argmax(q)]
     
-    
+    ch = q_m0 * np.exp((1- (height-z_m0)/H) - 1/np.cos(np.radians(chi)) * np.exp(-(height-z_m0)/H))
+    return ch
+
+for i in range(len(szas)):
+    plt.plot(chapman(total_q, 4e4, szas[i]), height*1e-3, label = "SZA = " + str(szas[i]) + "$^\circ$")
+    plt.xlabel("q [cm$^{-3}$ s$^{-1}$]")
+    plt.ylabel("Height [km]")
+    plt.title("Chapman profile")
+    plt.xlim(-10, 5800)
+    plt.legend()
+plt.show()
