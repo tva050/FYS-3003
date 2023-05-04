@@ -8,7 +8,7 @@ wavelength, absorption_cross_section_N2, absorption_cross_section_O2, absorption
 wavelength_fism, irradiance = np.loadtxt("Data\Fism_daily_hr19990216.dat",  unpack = True, skiprows = 51, max_rows=949, delimiter=',', usecols = (1, 2))
 electron_density, ion_temp, electron_temp = np.loadtxt("Data\IRI.dat", unpack = True, skiprows= 46, usecols=(1, 2, 3))
 
-print(electron_density, ion_temp, electron_temp)
+
 
 """ 
 Task 0: integrate the continuity-equations for 3600 seconds with a constant ionization-rate of
