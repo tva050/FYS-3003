@@ -7,7 +7,7 @@ plt.style.use('ggplot')
 height, nO, nN2, nO2, mass_density, nutral_temp = np.loadtxt(r'Data\MSIS.dat', unpack = True ,skiprows=118, usecols= (0, 1, 2, 3, 4, 5))
 n_e, ion_temp, electron_temp, O_ions, H_ions, He_ions, O2_ions, No_ions, cluster_ions, N_ions  = np.loadtxt("Data\IRI.dat", unpack = True, skiprows= 46, usecols=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
 
-nO, nN2, nO2 = nO*1e6, nN2*1e6, nO2*1e6
+nO, nN2, nO2 = nO*1e6, nN2*1e6, nO2*1e6 # converting to /m^3
 
 # finds T_r by taking the mean of ion_temp and nutral_temp
 T_r = (ion_temp + nutral_temp)/2
@@ -27,6 +27,8 @@ n_N_ions = (N_ions/sum_ions)*n_e
 other_ions = H_ions + He_ions + cluster_ions
 
 def ODEs(ni, t, altitude):  
+    
+    
     alpha1 = 2.1e-13 * (T_e/300)**-0.85
     alpha2 = 1.9e-13 * (T_e/300)**-0.5
     alpha3 = 1.8e-13 * (T_e/300)**-0.39
@@ -62,46 +64,33 @@ def ODEs(ni, t, altitude):
     d_nNO = -k3*O2p*No + k4*O2p*nN2 + k5*N2p*nO
     d_ne = q_e - alpha1*NOp*ne - alpha2*O2p*ne - alpha3*N2p*ne - alpha_r*Op*ne
     
-    return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
+    return [d_nN2p, d_nO2p, d_nOp, d_nNOp, d_nNO, d_ne]
+
+
+
 
 # Initial conditions
-    # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
+    # nN2p, nO2p,         nOp,     nNOp,  nNO, ne
 ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
-altitudes = (110, 170, 230) # wanted altitudes in km
-t = np.linspace(0, 3600, 3600) # time vector 
-sol = odeint(ODEs, ni0, t, args= (altitudes[2],)) # solving the ODEs for the wanted altitude
+altitudes = [110, 170, 230] # wanted altitudes in km
+t = np.linspace(0, 3600, 3600) # time vector
+print(t) 
+sol = odeint(ODEs, ni0, t, args= (110,)) # solving the ODEs  
 
-# Extracting the different densities from the solution
-N2p = sol[:,0] 
-O2p = sol[:,1]
-Op = sol[:,2]
-NOp = sol[:,3]
-NO = sol[:,4]
-ne = sol[:,5]
 
-plt.plot(t, N2p, label = "$N_2^+$")
-plt.plot(t, O2p, label = "$O_2^+$")
-plt.plot(t, Op, label = "$O^+$")
-plt.plot(t, NOp, label = "$NO^+$")
-plt.plot(t, NO, label = "$NO$")
-plt.plot(t, ne, label = "$e^- $")
+A = sol[:,0]
+B = sol[:,1]
+C = sol[:,2]
+D = sol[:,3]
+E = sol[:,4]
+
+plt.plot(t, A, label = "N2+")
+plt.plot(t, B, label = "O2+")
+plt.plot(t, C, label = "O+")
+plt.plot(t, D, label = "NO+")
+plt.plot(t, E, label = "NO")
 plt.xlabel("Time [s]")
 plt.ylabel("Density [m^-3]")
-plt.yscale("log")
-plt.title("Ion densities at " + str(int(altitudes[2])) + "km, $q_e = 1\cdot 10^8$")
+plt.title("Ion densities at 110 km")
 plt.legend()
 plt.show()
-
-        
-""" 
-Task 1: The response to an ionization pulse with 100 s duration should be modelled over a 600 s
-        long time-period. The ion-electron production rate should be set to 1*10^10(m^3s^1) for 100 s
-        followed by absolutely no further ionization. This modelling should be done at altitudes of 110,
-        170 and 230 km.
-"""
-
-
-""" 
-Task 2: Same as above but increase the electron and ion temperatures by 1000 K below 150 km,
-        and by 2000 K at the altitudes above 150 km. Compare the ion-composition for the two cases.
-"""

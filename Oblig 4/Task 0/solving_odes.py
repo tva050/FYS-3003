@@ -7,7 +7,7 @@ plt.style.use('ggplot')
 height, nO, nN2, nO2, mass_density, nutral_temp = np.loadtxt(r'Data\MSIS.dat', unpack = True ,skiprows=118, usecols= (0, 1, 2, 3, 4, 5))
 n_e, ion_temp, electron_temp, O_ions, H_ions, He_ions, O2_ions, No_ions, cluster_ions, N_ions  = np.loadtxt("Data\IRI.dat", unpack = True, skiprows= 46, usecols=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
 
-nO, nN2, nO2 = nO*1e6, nN2*1e6, nO2*1e6
+nO, nN2, nO2 = nO*1e6, nN2*1e6, nO2*1e6 # converting to /m^3
 
 # finds T_r by taking the mean of ion_temp and nutral_temp
 T_r = (ion_temp + nutral_temp)/2
@@ -64,15 +64,18 @@ def ODEs(ni, t, altitude):
     
     return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
+
+
+
 # Initial conditions
-    # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
+    # nN2p, nO2p,         nOp,     nNOp,  nNO, ne
 ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
 altitudes = (110, 170, 230) # wanted altitudes in km
 t = np.linspace(0, 3600, 3600) # time vector 
-sol = odeint(ODEs, ni0, t, args= (altitudes[2],)) # solving the ODEs for the wanted altitude
+sol = odeint(ODEs, ni0, t, args= (altitudes[2],)) # solving the ODEs  
 
-# Extracting the different densities from the solution
-N2p = sol[:,0] 
+
+N2p = sol[:,0]
 O2p = sol[:,1]
 Op = sol[:,2]
 NOp = sol[:,3]
@@ -91,17 +94,3 @@ plt.yscale("log")
 plt.title("Ion densities at " + str(int(altitudes[2])) + "km, $q_e = 1\cdot 10^8$")
 plt.legend()
 plt.show()
-
-        
-""" 
-Task 1: The response to an ionization pulse with 100 s duration should be modelled over a 600 s
-        long time-period. The ion-electron production rate should be set to 1*10^10(m^3s^1) for 100 s
-        followed by absolutely no further ionization. This modelling should be done at altitudes of 110,
-        170 and 230 km.
-"""
-
-
-""" 
-Task 2: Same as above but increase the electron and ion temperatures by 1000 K below 150 km,
-        and by 2000 K at the altitudes above 150 km. Compare the ion-composition for the two cases.
-"""
