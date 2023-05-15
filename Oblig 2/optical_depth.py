@@ -55,6 +55,7 @@ def _task1_():
                 tau.append(height[index]*1e-3)
         return tau
 
+    # plot the optical depth as function of wavelength and height
     def plot_optical_depth(wavelength, height):
         plt.pcolormesh(wavelength*1e9, height*1e-3, Optical_depth , norm=colors.LogNorm())
         plt.plot(wavelength*1e9, unit_optical_depth(wavelength, height, Optical_depth) , color='black', linewidth=1)
@@ -65,6 +66,7 @@ def _task1_():
         plt.title("Optical depth, SZA = "+ str(round(SZA*(180/np.pi))) + R"$^\circ$")
         plt.show()
 
+    # plot the absorption cross section as function of wavelength
     def plot_absorption_cross_section():
         plt.plot(wavelength*1e9, absorption_cross_section_N2, label='N$_2$')
         plt.plot(wavelength*1e9, absorption_cross_section_O2, label='O$_2$', color = "black")
@@ -75,6 +77,7 @@ def _task1_():
         plt.legend(loc='upper left', fontsize=10, frameon=True, ncol=3, fancybox=True, shadow=True)
         plt.show()
 
+    # plot the thermospheric density as function of height
     def plot_thermospheric_density():
         plt.plot(density[0], height*1e-3, label='N$_2$')
         plt.plot(density[1], height*1e-3, label='O$_2$', color = "black")
@@ -126,7 +129,7 @@ def _task2_(SZA):
     I = irradiance  * np.exp(-interpolated_optical_depth)
     I = (I * (wavelength_fism) / (h * c)) * 1e-4   # W/(nm * m^2) -> Photons/(s * cm^2)
     
-    def photon_flux(z):
+    def photon_flux(z): 
         I  = np.zeros((len(height),len(wavelength_fism))) 
         for z in range(len(height)):
             I[z,:] = irradiance * np.exp(-interpolated_optical_depth[z,:]) 
@@ -134,7 +137,7 @@ def _task2_(SZA):
         return I 
     
     
-
+    # Photon flux as function of wavelength and height, without unit optical depth
     plt.pcolormesh(wavelength_fism*1e9, height*1e-3, photon_flux(height))
     plt.xlabel('Wavelength [nm]')
     plt.ylabel('Height [km]')

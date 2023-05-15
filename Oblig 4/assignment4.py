@@ -226,7 +226,6 @@ def task_2(altitude):
         else:
             return 0
 
-
     def ODEs(ni, t, altitude):
         #------------------------------------------- ODES -------------------------------------------#
     
@@ -288,29 +287,35 @@ def task_3(altitude):
     T_r = (ion_temp + nutral_temp)/2
     T_e = electron_temp
     
+    # constants ish
+    alpha1 = 2.1e-13 * (T_e/300)**-0.85
+    alpha2 = 1.9e-13 * (T_e/300)**-0.5
+    alpha3 = 1.8e-13 * (T_e/300)**-0.39
+    
+    alpha_r = 3.7e-18 * (250/T_e)**0.7
+    
+    k1 = 2e-18
+    k2 = 2e-17 * (T_r/300)**-0.4
+    k3 = 4.4e-16
+    k4 = 5e-22
+    k5 = 1.4e-16 * (T_r/300)**-0.44
+    k6 = 5e-17 * (T_r/300)**-0.8
+        
+    def ionization_rate(t):
+        q_e = 1e10 # ionization rate
+        if t < 100:
+            return q_e
+        else:
+            return 0
+
+    
     def ODEs(ni, t, altitude):
-        global alpha1, alpha2, alpha3, k1, k2
-        # constants ish
-        alpha1 = 2.1e-13 * (T_e/300)**-0.85
-        alpha2 = 1.9e-13 * (T_e/300)**-0.5
-        alpha3 = 1.8e-13 * (T_e/300)**-0.39
+        #------------------------------------------- ODES -------------------------------------------#
     
-        alpha_r = 3.7e-18 * (250/T_e)**0.7
-    
-        k1 = 2e-18
-        k2 = 2e-17 * (T_r/300)**-0.4
-        k3 = 4.4e-16
-        k4 = 5e-22
-        k5 = 1.4e-16 * (T_r/300)**-0.44
-        k6 = 5e-17 * (T_r/300)**-0.8
-    
-        # Ionization rates for the different species
-        q_e =  1e8
+        q_e = ionization_rate(t)
         q_N2 = q_e * (0.92 * nN2) / (0.92*nN2 + nO2+ 0.56 * nO)
         q_O2 = q_e * (nO2) / (0.92*nN2 + nO2+ 0.56 * nO)
-        q_O =  q_e * (0.56 * nO) / (0.92*nN2 + nO2+ 0.56 * nO)    
-            
-        #------------------------------------------- ODES -------------------------------------------#
+        q_O =  q_e * (0.56 * nO) / (0.92*nN2 + nO2+ 0.56 * nO)
     
         # Assign each ODE to a vector element 
         N2p = ni[0]
@@ -324,50 +329,51 @@ def task_3(altitude):
         d_nO2p = q_O2 - alpha2*O2p*ne + k2*nO2*Op - k3*O2p*No - k4*O2p*nN2 + k6*nO2*N2p
         d_nOp = q_O - k1*Op*nN2 - k2*Op*nO2 - alpha_r*Op*ne
         d_nNOp = -alpha1*NOp*ne + k1*Op*nN2 + k3*O2p*No + k4*O2p*nN2 + k5*N2p*nO
-        d_nNO = -k3*O2p*No + k4*O2p*nN2
+        d_nNO = -k3*O2p*No + k4*O2p*nN2 
         d_ne = q_e - alpha1*NOp*ne - alpha2*O2p*ne - alpha3*N2p*ne - alpha_r*Op*ne
-    
-        if not np.allclose(q_e, q_e): # if q_e is not constant raise an error
-            raise ValueError("q_e is not constant")
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
     # Initial conditions
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
     ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
-    t = np.linspace(0, 3600, 3600) # time vector 
-    sol1 = odeint(ODEs, ni0, t, args= (altitude,)) # solving the ODEs for the wanted altitude
+    t = np.linspace(0, 600, 600) # time vector
+    solve = odeint(ODEs, ni0, t, args= (altitude,)) # solving the ODEs for the wanted altitude
 
-    # Extracting the different densities from the solution
-    N2p = sol1[:,0] 
-    O2p = sol1[:,1]
-    Op  = sol1[:,2]
-    NOp = sol1[:,3]
-    NO  = sol1[:,4]
-    ne  = sol1[:,5]
+    N2p = solve[:,0] 
+    O2p = solve[:,1]
+    Op  = solve[:,2]
+    NOp = solve[:,3]
+    NO  = solve[:,4]
+    ne  = solve[:,5]
+    
+    print(len(ne[100:]))
+    ne_off = (np.linspace(ne[100], max(ne), 501))
+    
+    
+    beta = (k1*nN2[altitude] + k2*nO2[altitude]) / (1 + (k1/alpha1)*(nN2[altitude]/ ne_off) + (k2/alpha2)*(nO2[altitude]/ne_off))
+    #alpha_eff = ((alpha1/k1*nN2[altitude]) + (alpha2/k2*nO2[altitude])) * beta
+    
+    alpha_eff = alpha1*(NOp[99:]/ne[99:]) + alpha2*(O2p[99:]/ne[99:]) + alpha3*(N2p[99:]/ne[99:])
+    
+    def beta_decay(t):
+        return ne_off*np.exp(-beta*t)
+        
+    def alpha_decay():
+        return ne[99:]/(1 + alpha_eff*ne[99:])
 
-    t_off = 0 
-    
-    alpha_e = alpha1*(NOp/ne) + alpha2*(O2p/ne) + alpha3*(N2p/ne) # refered to as alpha overline 
-    def alpha(t_off):
-        alpha = (ne[t_off])/(1 + alpha_e*ne[t_off])
-        return alpha
-    
-    beta_marked = (k1*nN2 + k2*nO2) / (1 + (k1/alpha1)*(nN2/ne) + (k2/alpha2)*(nO2/ne))
-    def beta_decay(t_off):
-        beta_decay = ne[t_off]*np.exp(-beta_marked*(t-t_off))
-        return beta_decay
-    
-    plt.plot(t, ne, label = "$n_e$")
-    plt.plot(t, alpha(t_off), label = "$\\alpha$")
-    plt.plot(t, beta_decay(t_off), label = "$\\beta$")
+
+
+    plt.plot(t, ne, label = "ne")
+    plt.plot(t[99:], beta_decay(t[99:]), label = "beta decay")
+    plt.plot(t[99:], alpha_decay(), label = "alpha decay")
     plt.xlabel("Time [s]")
     plt.ylabel("Density [m^-3]")
     plt.yscale("log")
-    plt.title("Electron density at " + str(int(altitude)) + "km")
+    plt.title("Electron density at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^{10}$")
     plt.legend()
     plt.show()
-    
+
     
     
 if __name__ == "__main__":
@@ -375,6 +381,6 @@ if __name__ == "__main__":
     # The altitudes to choose from are 110 ([0]), 170 ([1]) and 230([2]) km
     
     #task_0(altitudes[0])
-    #task_1(altitudes[1])
-    #task_2(altitudes[1])
-    task_3(altitudes[0])
+    #task_1(altitudes[0])
+    #task_2(altitudes[0])
+    #task_3(altitudes[0])

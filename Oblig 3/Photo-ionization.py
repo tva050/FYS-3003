@@ -6,7 +6,7 @@ import numpy as np
 
 plt.style.use('ggplot')
 
-""" ---------------------------- Import data ---------------------------- """
+""" ---------------------------- Import data from optical depth task ---------------------------- """
 I_SZA0  = np.loadtxt(os.path.join("Data", "I_SZA0.csv"), delimiter=",")
 I_SZA10 = np.loadtxt(os.path.join("Data", "I_SZA10.csv"), delimiter=",")
 I_SZA20 = np.loadtxt(os.path.join("Data", "I_SZA20.csv"), delimiter=",")
@@ -37,8 +37,6 @@ N2_threshold = 7.96e-8 # Ångström -> m
 O2_threshold = 1.026e-7 # Ångström -> m
 O_threshold = 9.11e-8 # Ångström -> m
 
-# Altitude for the production rate
-
 
 #___________________________________________________________
 #Since data have different sizes, we need to interpolate the data to the same size
@@ -58,9 +56,9 @@ def production_rate(I, wavelength, threshold, sigma, n, alititude):
     c = 3e8 # m/s speed of light
     eV = 6.242e18 # 1 eV = 6.242e18 J
 
-    E = h*c * (1 / wavelength[wavelength <= threshold] - 1/threshold)*eV
+    E = h*c * (1 / wavelength[wavelength <= threshold] - 1/threshold)*eV  # Electron energy [eV]
     
-    P = n[alititude] * sigma * I[alititude]
+    P = n[alititude] * sigma * I[alititude] # Production rate of photo-electrons at specific altitude [m^-3 s^-1]
     P = P[wavelength <= threshold]*1e-6 # -> cm^-3 s^-1 
     return P, E
 
@@ -69,8 +67,8 @@ def phot_e_prod(altitude, all_I):
     P_O2, E_O2 = production_rate(all_I, wavelength_fism, O2_threshold, absorption_cross_section_O2, O2, altitude)
     P_O, E_O = production_rate(all_I, wavelength_fism, O_threshold, absorption_cross_section_O, O, altitude)
     
-    energy = np.linspace(np.min(E_O), np.max(E_O2), 1000)
-
+    energy = np.linspace(np.min(E_O), np.max(E_O2), 1000) # Energy range for interpolation
+    
     P_N2_interpolated = sc.interpolate.interp1d(E_N2, P_N2, fill_value = "extrapolate", kind='linear')
     P_O2_interpolated = sc.interpolate.interp1d(E_O2, P_O2, fill_value = "extrapolate",kind='linear')
     P_O_interpolated  = sc.interpolate.interp1d(E_O, P_O, fill_value = "extrapolate",kind='linear')
@@ -79,10 +77,11 @@ def phot_e_prod(altitude, all_I):
     P_O2 = P_O2_interpolated(energy)
     P_O  = P_O_interpolated(energy)
 
-    p = P_N2 + P_O2 + P_O
+    p = P_N2 + P_O2 + P_O # Total production rate of photo-electrons [cm^-3 s^-1]
     return p, energy 
 
-""" energies = phot_e_prod(0, all_I[0])[1]
+# Plotting production rate as a function of energy and altitude for different SZA with meshgrid
+energies = phot_e_prod(0, all_I[0])[1]
 p = np.zeros((len(height), len(energies)))
 for z in range(len(height)): 
     p[z] = phot_e_prod(z, all_I[0])[0]
@@ -92,7 +91,7 @@ plt.xlabel("Energy [eV]")
 plt.ylabel("Altitude [km]")
 plt.title("Production rate of photo-electrons SZA = 75$^\circ$")
 plt.colorbar(label = "Production rate [cm$^{-3}$ s$^{-1}$]")
-plt.show() """
+plt.show()
 
 p100_sza0 = phot_e_prod(150, all_I[0])[0]
 energy100_sza0 = phot_e_prod(150, all_I[0])[1]
@@ -158,7 +157,9 @@ plt.legend()
 plt.show()
 
 
-""" altitudes = np.array([125, 140, 204, 392]) # Same altitudes as in figure 2.5.1 in M H Rees
+""" 
+# Plotting production rate as a function of energy for different altitudes
+altitudes = np.array([125, 140, 204, 392]) # Same altitudes as in figure 2.5.1 in M H Rees
 energye = np.linspace(np.min(energies), np.max(energies), 1000)
 
 plt.plot(energies, p[altitudes[0]], label = "Altitude = 125 km")
@@ -176,20 +177,22 @@ plt.legend() """
 
 
 # b) Make functions that calculate the photo-ionization profiles as a function of altitude (Eq. 2.3.4 M H Rees)
+# Photo-ionization rate
 def ionization_profile(I, wavelength, threshold, sigma, n):
-    q = np.zeros(height.shape[0]) 
-    for i in range(height.shape[0]):
-        wavelength_ = wavelength <= threshold
-        integrand = I[i, wavelength_] * sigma[wavelength_]
-        integral  = sc.integrate.trapz(integrand, wavelength[wavelength_])
-        q[i] = integral * n[i]
-    return q*1e9
+    q = np.zeros(height.shape[0])  # gives q to have the same shape as height array 
+    for i in range(height.shape[0]): # for each altitude
+        wavelength_ = wavelength <= threshold # wavelengths below threshold
+        integrand = I[i, wavelength_] * sigma[wavelength_] # integrand of photo-ionization rate
+        integral  = sc.integrate.trapz(integrand, wavelength[wavelength_]) # integral of photo-ionization rate
+        q[i] = integral * n[i] # photo-ionization rate
+    return q*1e9 # -> cm^-3 s^-1
 
 q_N2 = ionization_profile(all_I[0], wavelength_fism, N2_threshold, absorption_cross_section_N2, N2)*1e-6
 q_O2 = ionization_profile(all_I[0], wavelength_fism, O2_threshold, absorption_cross_section_O2, O2)*1e-6
 q_O = ionization_profile(all_I[0], wavelength_fism, O_threshold, absorption_cross_section_O, O)*1e-6
-total_q = q_N2 + q_O2 + q_O
+total_q = q_N2 + q_O2 + q_O # total photo-ionization rate
 
+# Plotting photo-ionization rate as a function of altitude
 plt.plot(q_O, height*1e-3, label="O")
 plt.plot(q_O2, height*1e-3, label="O2", color = "orange")
 plt.plot(q_N2, height*1e-3, label="N2", color = "gray")
@@ -202,15 +205,15 @@ plt.show()
 
 
 
-# Chapman 
-
+# Chapman profile
 def chapman(q, H, chi):
-    q_m0 = np.max(q)
-    z_m0 = height[np.argmax(q)]
+    q_m0 = np.max(q) # max photo-ionization rate
+    z_m0 = height[np.argmax(q)] # altitude of max photo-ionization rate
     
-    ch = q_m0 * np.exp((1- (height-z_m0)/H) - 1/np.cos(np.radians(chi)) * np.exp(-(height-z_m0)/H))
+    ch = q_m0 * np.exp((1- (height-z_m0)/H) - 1/np.cos(np.radians(chi)) * np.exp(-(height-z_m0)/H)) # Chapman profile 
     return ch
 
+# Plotting Chapman profile for different SZA 
 for i in range(len(szas)):
     plt.plot(chapman(total_q, 4e4, szas[i]), height*1e-3, label = "SZA = " + str(szas[i]) + "$^\circ$")
     plt.xlabel("q [cm$^{-3}$ s$^{-1}$]")
