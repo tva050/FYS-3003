@@ -347,17 +347,16 @@ def task_3(altitude):
     NO  = solve[:,4]
     ne  = solve[:,5]
     
-    print(len(ne[100:]))
     ne_off = (np.linspace(ne[100], max(ne), 501))
     
     
-    beta = (k1*nN2[altitude] + k2*nO2[altitude]) / (1 + (k1/alpha1)*(nN2[altitude]/ ne_off) + (k2/alpha2)*(nO2[altitude]/ne_off))
+    beta = (k1*nN2[altitude] + k2*nO2[altitude]) / (1 + (k1/alpha1)*(nN2[altitude]/ ne[99:]) + (k2/alpha2)*(nO2[altitude]/ne[99:]))
     #alpha_eff = ((alpha1/k1*nN2[altitude]) + (alpha2/k2*nO2[altitude])) * beta
     
     alpha_eff = alpha1*(NOp[99:]/ne[99:]) + alpha2*(O2p[99:]/ne[99:]) + alpha3*(N2p[99:]/ne[99:])
     
     def beta_decay(t):
-        return ne_off*np.exp(-beta*t)
+        return ne[99:]*np.exp(-beta*t)
         
     def alpha_decay():
         return ne[99:]/(1 + alpha_eff*ne[99:])
@@ -373,8 +372,94 @@ def task_3(altitude):
     plt.title("Electron density at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^{10}$")
     plt.legend()
     plt.show()
-
     
+    
+""" 
+Task 4: The response to ionization that varies as: q_e = hat_q_e * sin(2*pi*t/20)
+        for the first 100 s followed by absolutely no further ionization for the remaining 500 s. The
+        peak ion-electron production, hat_q_e, should be set to 2*10^10(m^-3s^-1) during the first 100 s followed
+        by absolutely no further ionization. This modelling should be done at altitude of 110,
+        120 170 and 230 km.
+"""
+
+def task_4(altitude):
+    # finds T_r by taking the mean of ion_temp and nutral_temp
+    T_r = (ion_temp + nutral_temp)/2
+    T_e = electron_temp
+    
+    # constants ish
+    alpha1 = 2.1e-13 * (T_e/300)**-0.85
+    alpha2 = 1.9e-13 * (T_e/300)**-0.5
+    alpha3 = 1.8e-13 * (T_e/300)**-0.39
+    
+    alpha_r = 3.7e-18 * (250/T_e)**0.7
+    
+    k1 = 2e-18
+    k2 = 2e-17 * (T_r/300)**-0.4
+    k3 = 4.4e-16
+    k4 = 5e-22
+    k5 = 1.4e-16 * (T_r/300)**-0.44
+    k6 = 5e-17 * (T_r/300)**-0.8
+    
+    def ionization(t):
+        hat_q_e = 2e10
+        q_e = hat_q_e * np.sin(2*np.pi*t/20)
+        if t < 100:
+            return q_e
+        else:
+            return 0
+
+    def ODEs(ni, t, altitude):
+        #------------------------------------------- ODES -------------------------------------------#
+    
+        q_e = ionization(t)
+        q_N2 = q_e * (0.92 * nN2) / (0.92*nN2 + nO2+ 0.56 * nO)
+        q_O2 = q_e * (nO2) / (0.92*nN2 + nO2+ 0.56 * nO)
+        q_O =  q_e * (0.56 * nO) / (0.92*nN2 + nO2+ 0.56 * nO)
+    
+        # Assign each ODE to a vector element 
+        N2p = ni[0]
+        O2p = ni[1]
+        Op = ni[2]
+        NOp = ni[3]
+        No = ni[4]
+        ne = ni[5]
+    
+        d_nN2p = q_N2 - alpha3*N2p*ne - k5*N2p*nO - k6*N2p*nO2
+        d_nO2p = q_O2 - alpha2*O2p*ne + k2*nO2*Op - k3*O2p*No - k4*O2p*nN2 + k6*nO2*N2p
+        d_nOp = q_O - k1*Op*nN2 - k2*Op*nO2 - alpha_r*Op*ne
+        d_nNOp = -alpha1*NOp*ne + k1*Op*nN2 + k3*O2p*No + k4*O2p*nN2 + k5*N2p*nO
+        d_nNO = -k3*O2p*No + k4*O2p*nN2 
+        d_ne = q_e - alpha1*NOp*ne - alpha2*O2p*ne - alpha3*N2p*ne - alpha_r*Op*ne
+    
+        return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
+
+    # Initial conditions
+        # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
+    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
+    time = np.linspace(0, 600, 600) # time vector
+    solve = odeint(ODEs, ni0, time, args= (altitude,)) # solving the ODEs for the wanted altitude
+
+    N2p = solve[:,0] 
+    O2p = solve[:,1]
+    Op  = solve[:,2]
+    NOp = solve[:,3]
+    NO  = solve[:,4]
+    ne  = solve[:,5]
+    
+    plt.plot(time, N2p, label = "$N_2^+$")
+    plt.plot(time, O2p, label = "$O_2^+$")
+    plt.plot(time, Op, label = "$O^+$")
+    plt.plot(time, NOp, label = "$NO^+$")
+    plt.plot(time, NO, label = "$NO$")
+    plt.plot(time, ne, label = "$e^- $")
+    plt.xlabel("Time [s]")
+    plt.ylabel("Density [m^-3]")
+    plt.yscale("log")
+    plt.ylim(1e7, 1e12)
+    plt.title("Ion densities at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^{10}$")
+    plt.legend()
+    plt.show()
     
 if __name__ == "__main__":
     # !!! Remember to run the functions, the altitudes need to be indexed !!!
@@ -384,3 +469,4 @@ if __name__ == "__main__":
     #task_1(altitudes[0])
     #task_2(altitudes[0])
     #task_3(altitudes[0])
+    task_4(altitudes[0])

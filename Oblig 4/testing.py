@@ -83,28 +83,24 @@ def task_3(altitude):
     NO  = solve[:,4]
     ne  = solve[:,5]
     
-    print(len(ne[100:]))
-    ne_off = (np.linspace(ne[100], max(ne), 501))
-    begrensett_NOp = (np.linspace(NOp[100], max(NOp), 501))
-    begrensett_O2p = (np.linspace(O2p[100], max(O2p), 501))
-    begrensett_N2p = (np.linspace(N2p[100], max(N2p), 501))
     
-    beta = (k1*nN2[altitude] + k2*nO2[altitude]) / (1 + (k1/alpha1)*(nN2[altitude]/ ne_off) + (k2/alpha2)*(nO2[altitude]/ ne_off))
-    alpha_eff = ((alpha1/(k1*nN2[altitude])) + alpha2/(k2*nO2[altitude])) * beta
     
-    #alpha_eff = alpha1*(begrensett_NOp/ne_off) + alpha2*(begrensett_O2p/ne_off) + alpha3*(begrensett_N2p/ne_off)
+    beta = (k1*nN2[altitude] + k2*nO2[altitude]) / (1 + (k1/alpha1)*(nN2[altitude]/ ne[99:]) + (k2/alpha2)*(nO2[altitude]/ ne[99:]))
+    #alpha_eff = ((alpha1/(k1*nN2[altitude])) + alpha2/(k2*nO2[altitude])) * beta
+    
+    alpha_eff = alpha1*(NOp[99:]/ne[99:]) + alpha2*(O2p[99:]/ne[99:]) + alpha3*(N2p[99:]/ne[99:])
     
     def beta_decay(t):
-        return ne_off*np.exp(-beta*t)
+        return ne[99:]*np.exp(-beta*t[99:])
         
     def alpha_decay(t):
-        return ne_off/(1 + alpha_eff*ne_off)
+        return ne[99:]/(1 + alpha_eff*ne[99:]*t[99:])
 
 
 
-    plt.plot(t, ne, label = "ne")
-    plt.plot(t[99:], beta_decay(t[99:]), label = "beta decay")
-    plt.plot(t[99:], alpha_decay(t[99:]), label = "alpha decay")
+    plt.plot(t, ne, label = "$n_{e^-}$")
+    plt.plot(t[99:], beta_decay(t), label = "$\\beta$ decay")
+    plt.plot(t[99:], alpha_decay(t), label = "$\\alpha$ decay")
     plt.xlabel("Time [s]")
     plt.ylabel("Density [m^-3]")
     plt.yscale("log")
@@ -112,4 +108,4 @@ def task_3(altitude):
     plt.legend()
     plt.show()
     
-task_3(230)
+task_3(110)
