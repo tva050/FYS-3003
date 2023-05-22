@@ -18,7 +18,11 @@ n_O2_ions = (O2_ions/sum_ions)*n_e
 n_NO_ions = (No_ions/sum_ions)*n_e
 n_N_ions = (N_ions/sum_ions)*n_e
 other_ions = H_ions + He_ions + cluster_ions
-
+""" 
+Task 3: Compare the electron-density decay at 110 and 230 km with the expected decrease-characteristics:
+        "alpha" ((ne(t_off )/(1 + alpha_e*ne(t_off ))) and "beta" (exponential decay). Remember to
+        include both the dissociative recombination of O2p and NOp when calculating the beta-decay.
+"""
 def task_3(altitude): 
     T_r = (ion_temp + nutral_temp)/2
     T_e = electron_temp
@@ -73,39 +77,37 @@ def task_3(altitude):
     # Initial conditions
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
     ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
-    #t = np.arange(0, 601) # time vector
-    t = np.linspace(0, 600, 601)
+    #t = np.linspace(0, 600, 601) # time vector
+    t = np.arange(0, 600, 1)
     solve = odeint(ODEs, ni0, t, args= (altitude,)) # solving the ODEs for the wanted altitude
-    print(t)
+
     N2p = solve[:,0] 
     O2p = solve[:,1]
-    Op  = solve[:,2]
     NOp = solve[:,3]
-    NO  = solve[:,4]
     ne  = solve[:,5]
     
-    beta = (k1*nN2[altitude]+k2[altitude]*nO2[altitude])/(1 + (k1/alpha1[altitude])*(nN2[altitude]/ne[100]) + (k2[altitude]/alpha2[altitude])*(nO2[altitude]/ne[100]))
+    beta = (k1*nN2[altitude] + k2[altitude]*nO2[altitude]) / (1 + (k1/alpha1[altitude])*(nN2[altitude]/ ne[100]) + (k2[altitude]/alpha2[altitude])*(nO2[altitude]/ne[100]))
     
-    alpha_eff = alpha1[altitude] * (NOp[100]/ne[100]) + alpha2[altitude] * (O2p[100]/ne[100]) + alpha3[altitude] * (N2p[100]/ne[100])
     #alpha_eff = ((alpha1[altitude]/(k1*nN2[altitude])) + alpha2[altitude]/(k2[altitude]*nO2[altitude])) * beta
-        
+    alpha_eff = alpha1[altitude]*(NOp[100]/ne[100]) + alpha2[altitude]*(O2p[100]/ne[100]) + alpha3[altitude]*(N2p[100]/ne[100])
+    
     def beta_decay(t):
-        return ne[100]*np.exp(-beta*t[100:])
-    
+        return ne[100]*np.exp(-beta*(t[100:]-t[100]))
+        
     def alpha_decay(t):
-        return ((ne[100]) / (1+alpha_eff*ne[100]*(t[100:])))
+        return ne[100]/(1 + alpha_eff*ne[100]*(t[100:] - t[100]))
+
     
-    
-    plt.plot(t, ne, label = r'$n_e$')
-    plt.plot(t[100:], beta_decay(t), label = r'$\beta$-decay', linestyle = '--')
-    plt.plot(t[100:], alpha_decay(t), label = r'$\alpha$-decay', linestyle = '--')
-    plt.xlabel('Time [s]')
-    plt.ylabel(r'$n_e$ [m$^{-3}$]')
-    plt.yscale('log')
-    plt.title('Electron density at {} km'.format(altitude))
+
+    plt.plot(t, ne, label = "ne")
+    plt.plot(t[100:], beta_decay(t), label = "beta decay")
+    plt.plot(t[100:], alpha_decay(t), label = "alpha decay")
+    plt.xlabel("Time [s]")
+    plt.ylabel("Density [m^-3]")
+    plt.yscale("log")
+    plt.title("Electron density at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^{10}$")
     plt.legend()
     plt.show()
-
-task_3(110)
     
     
+task_3(230)

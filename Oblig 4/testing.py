@@ -73,7 +73,7 @@ def task_3(altitude):
     # Initial conditions
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
     ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
-    t = np.linspace(0, 600, 600) # time vector
+    t = np.linspace(0, 600, 601) # time vector
     solve = odeint(ODEs, ni0, t, args= (altitude,)) # solving the ODEs for the wanted altitude
 
     N2p = solve[:,0] 
@@ -84,26 +84,26 @@ def task_3(altitude):
     ne  = solve[:,5]
     
     
+    beta = (k1*nN2[altitude] + k2[altitude]*nO2[altitude]) / (1 + (k1/alpha1[altitude])*(nN2[altitude]/ ne[100]) + (k2[altitude]/alpha2[altitude])*(nO2[altitude]/ ne[100]))
+    #alpha_eff = ((alpha1[altitude]/(k1*nN2[altitude])) + alpha2[altitude]/(k2[altitude]*nO2[altitude])) * beta
     
-    beta = (k1*nN2[altitude] + k2*nO2[altitude]) / (1 + (k1/alpha1)*(nN2[altitude]/ ne[99:]) + (k2/alpha2)*(nO2[altitude]/ ne[99:]))
-    #alpha_eff = ((alpha1/(k1*nN2[altitude])) + alpha2/(k2*nO2[altitude])) * beta
-    
-    alpha_eff = alpha1*(NOp[99:]/ne[99:]) + alpha2*(O2p[99:]/ne[99:]) + alpha3*(N2p[99:]/ne[99:])
+    alpha_eff = alpha1[altitude]*(NOp[100]/ne[100]) + alpha2[altitude]*(O2p[100]/ne[100]) + alpha3[altitude]*(N2p[100]/ne[100])
     
     def beta_decay(t):
-        return ne[99:]*np.exp(-beta*t[99:])
+        return ne[100]*np.exp(-beta*t[100:])
         
     def alpha_decay(t):
-        return ne[99:]/(1 + alpha_eff*ne[99:]*t[99:])
+        return ne[100]/(1 + alpha_eff*ne[100]*t[100:])
 
 
 
     plt.plot(t, ne, label = "$n_{e^-}$")
-    plt.plot(t[99:], beta_decay(t), label = "$\\beta$ decay")
-    plt.plot(t[99:], alpha_decay(t), label = "$\\alpha$ decay")
+    plt.plot(t[100:], beta_decay(t), label = "$\\beta$ decay")
+    plt.plot(t[100:], alpha_decay(t), label = "$\\alpha$ decay")
     plt.xlabel("Time [s]")
     plt.ylabel("Density [m^-3]")
     plt.yscale("log")
+    #plt.ylim(2.9e10, 1e12)
     plt.title("Electron density at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^{10}$")
     plt.legend()
     plt.show()
