@@ -1,0 +1,18 @@
+task 3
+
+100 ionization pulse on
+500 off
+ne_0 = 100 (ionization off)
+
+remeber altitude specification 
+
+
+number density of I:
+
+Ionospheric-chemistry.pdf: p.12 and p.27
+
+Ionospheric-chemistry.notes.pdf: p.16 and p.32
+
+
+alpha_decay , best in E
+beta_decay, best in F

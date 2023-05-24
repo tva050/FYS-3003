@@ -85,9 +85,9 @@ def task_3(altitude):
     
     
     beta = (k1*nN2[altitude] + k2[altitude]*nO2[altitude]) / (1 + (k1/alpha1[altitude])*(nN2[altitude]/ ne[100]) + (k2[altitude]/alpha2[altitude])*(nO2[altitude]/ ne[100]))
-    #alpha_eff = ((alpha1[altitude]/(k1*nN2[altitude])) + alpha2[altitude]/(k2[altitude]*nO2[altitude])) * beta
+    alpha_eff = ((alpha1[altitude]/(k1*nN2[altitude])) + alpha2[altitude]/(k2[altitude]*nO2[altitude])) * beta
     
-    alpha_eff = alpha1[altitude]*(NOp[100]/ne[100]) + alpha2[altitude]*(O2p[100]/ne[100]) + alpha3[altitude]*(N2p[100]/ne[100])
+    #alpha_eff = alpha1[altitude]*(NOp[100]/ne[100]) + alpha2[altitude]*(O2p[100]/ne[100]) + alpha3[altitude]*(N2p[100]/ne[100])
     
     def beta_decay(t):
         return ne[100]*np.exp(-beta*t[100:])
@@ -109,3 +109,7 @@ def task_3(altitude):
     plt.show()
     
 task_3(110)
+
+def noe(var1, var2=100, var3=20):
+    return print("var1  is", var1/2, "var2 is", var2, "and var3", var3)
+
