@@ -359,11 +359,11 @@ def task_3(altitude):
 
 
 
-    plt.plot(t, ne, label = "ne")
+    plt.plot(t, ne, label = "$n_e$")
     plt.plot(t[100:], beta_decay(t), label = "beta decay")
     plt.plot(t[100:], alpha_decay(), label = "alpha decay")
     plt.xlabel("Time [s]")
-    plt.ylabel("Density [m^-3]")
+    plt.ylabel("Density [$m^{-3}$]")
     plt.yscale("log")
     plt.title("Electron density at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^{10}$")
     plt.legend()
