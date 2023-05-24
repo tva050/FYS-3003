@@ -141,7 +141,7 @@ def task_1(altitude):
         q_N2 = q_e * (0.92 * nN2) / (0.92*nN2 + nO2+ 0.56 * nO)
         q_O2 = q_e * (nO2) / (0.92*nN2 + nO2+ 0.56 * nO)
         q_O =  q_e * (0.56 * nO) / (0.92*nN2 + nO2+ 0.56 * nO)
-    
+        
         # Assign each ODE to a vector element 
         N2p = ni[0]
         O2p = ni[1]
@@ -465,4 +465,4 @@ if __name__ == "__main__":
     #task_1(altitudes[0])
     #task_2(altitudes[0])
     #task_3(altitudes[0])
-    task_4(altitudes[0])
+    #task_4(altitudes[0])
