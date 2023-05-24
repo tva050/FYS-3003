@@ -194,7 +194,7 @@ def task_2(altitude):
     # finds T_r by taking the mean of ion_temp and nutral_temp
     T_e = electron_temp
     
-    # function to increase the temperature
+    # function for increasing the temperatures
     def temperature_increase(altitude):
         # 
         if altitude < 150:
