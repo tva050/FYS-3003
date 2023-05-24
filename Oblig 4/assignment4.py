@@ -11,7 +11,7 @@ nO, nN2, nO2 = nO*1e6, nN2*1e6, nO2*1e6
 
 altitudes = [110, 170, 230]
 
-# constants ish
+# constants ish (converting the percent of number density to a value)
 sum_ions = O_ions + O2_ions + No_ions + N_ions
 n_O_ions = (O_ions/sum_ions)*n_e
 n_O2_ions = (O2_ions/sum_ions)*n_e
@@ -76,15 +76,15 @@ def task_0(altitude):
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
     ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
     t = np.linspace(0, 3600, 3601) # time vector 
-    sol1 = odeint(ODEs, ni0, t, args= (altitude,)) # solving the ODEs for the wanted altitude
+    solve = odeint(ODEs, ni0, t, args= (altitude,)) # solving the ODEs for the wanted altitude
 
     # Extracting the different densities from the solution
-    N2p = sol1[:,0] 
-    O2p = sol1[:,1]
-    Op  = sol1[:,2]
-    NOp = sol1[:,3]
-    NO  = sol1[:,4]
-    ne  = sol1[:,5]
+    N2p = solve[:,0] 
+    O2p = solve[:,1]
+    Op  = solve[:,2]
+    NOp = solve[:,3]
+    NO  = solve[:,4]
+    ne  = solve[:,5]
 
     plt.plot(t, N2p, label = "$N_2^+$")
     plt.plot(t, O2p, label = "$O_2^+$")
