@@ -25,12 +25,43 @@ Task 0: integrate the continuity-equations for 3600 seconds with a constant ioni
 """
 
 def task_0(altitude):
+    """ 
+    Integrates the continuity-equations for 3600 seconds with a constant ionization-rate of
+    
+    Parameters
+    ----------
+    altitude : int
+        index of the wanted altitude
+    
+    Returns
+    -------
+    array
+        array of the different densities at the wanted altitude
+    """
     # finds T_r by taking the mean of ion_temp and nutral_temp
     T_r = (ion_temp + nutral_temp)/2
     T_e = electron_temp
     
     def ODEs(ni, t, altitude):
-        # constants ish
+        """ 
+        ODEs for the continuity equations for the different species
+        
+        Parameters
+        ----------
+        ni : array
+            array of the different densities
+        t : array
+            time vector
+        altitude : int
+            index of the wanted altitude
+
+        Returns
+        -------
+        array
+            array of the different densities at the wanted altitude
+        """
+        global alpha1, alpha2, alpha3, alpha_r, k1, k2, k3, k4, k5, k6, q_e
+        # Reaction rates 
         alpha1 = 2.1e-13 * (T_e/300)**-0.85
         alpha2 = 1.9e-13 * (T_e/300)**-0.5
         alpha3 = 1.8e-13 * (T_e/300)**-0.39
@@ -72,11 +103,11 @@ def task_0(altitude):
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
-    # Initial conditions
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
-    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
+    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]] # Initial conditions
     t = np.linspace(0, 3600, 3601) # time vector 
     solve = odeint(ODEs, ni0, t, args= (altitude,)) # solving the ODEs for the wanted altitude
+
 
     # Extracting the different densities from the solution
     N2p = solve[:,0] 
@@ -85,6 +116,12 @@ def task_0(altitude):
     NOp = solve[:,3]
     NO  = solve[:,4]
     ne  = solve[:,5]
+
+    # Checking if charge is conserved
+    tot_charge = (N2p + O2p + Op + NOp) - ne
+    for i in range(len(tot_charge)):
+        if tot_charge[i] >= 1:
+            raise ValueError("Charge is not conserved")
 
     plt.plot(t, N2p, label = "$N_2^+$")
     plt.plot(t, O2p, label = "$O_2^+$")
@@ -98,7 +135,55 @@ def task_0(altitude):
     plt.title("Ion densities at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^8$")
     plt.legend()
     plt.show()
+    
+    
 
+    # plot the different loss and source-terms, i.e the rates of different reactions 
+    plt.plot(t, tot_charge, label = "Total charge")
+    plt.show()
+    
+    def plot_reactionrates(altitude):
+        """ 
+        Plots the different reaction rates for the different reactions
+
+        Parameters:
+        -----------
+        altitude: float
+            The altitude at which the reaction rates are to be plotted
+        """
+        a1 = 2.1e-13 * (T_e[altitude]/300)**(-0.85) * ne*NOp
+        a2 = 1.9e-13 * (T_e[altitude]/300)**(-0.5) * ne*O2p
+        a3 = 1.8e-13 * (T_e[altitude]/300)**(-0.39) * ne*N2p
+    
+        ar = 3.7e-18 * (250/T_e[altitude])**(0.7) * ne*Op
+    
+        k1 = 2e-18*nN2[altitude]*Op
+        k2 = 2e-17 * (T_r[altitude]/300)**(-0.4) * Op*nO2[altitude]
+        k3 = 4.4e-16*O2p*NO
+        k4 = 5e-22*O2p*nN2[altitude]
+        k5 = 1.4e-16 * (T_r[altitude]/300)**(-0.44) * N2p*nO[altitude]
+        k6 = 5e-17 * (T_r[altitude]/300)**(-0.8) * N2p*nO2[altitude]
+    
+        plt.plot(t, a1, label = "$\\alpha_1$", color = "black")
+        plt.plot(t, a2, label = "$\\alpha_2$", color = "red")
+        plt.plot(t, a3, label = "$\\alpha_3$", color = "green")
+        plt.plot(t, ar, label = "$\\alpha_r$", color = "blue")
+        plt.plot(t, k1, label = "$k_1$", color = "teal")
+        plt.plot(t, k2, label = "$k_2$", color = "orange")
+        plt.plot(t, k3, label = "$k_3$", color = "purple")
+        plt.plot(t, k4, label = "$k_4$", color = "brown")
+        plt.plot(t, k5, label = "$k_5$", color = "pink")
+        plt.plot(t, k6, label = "$k_6$", color = "gray")
+        plt.xlabel("Time [s]")
+        plt.ylabel("Rate [m^-3s^-1]")
+        plt.yscale("log")
+        #plt.ylim(1e-1, 1e12)
+        plt.title("Reaction rates at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^8$")
+        plt.legend(loc="lower left", ncol = 10)
+        plt.show()
+        
+    plot_reactionrates(altitude)    
+        
         
 """ 
 Task 1: The response to an ionization pulse with 100 s duration should be modelled over a 600 s
@@ -108,11 +193,19 @@ Task 1: The response to an ionization pulse with 100 s duration should be modell
 """
 
 def task_1(altitude):
+    """ 
+    Plots the different densities for the different ions and electrons at the given altitude. TASK 1
+    
+    Parameters:
+    -----------
+    altitude: float
+        The altitude at which the densities are to be plotted
+    """
     # finds T_r by taking the mean of ion_temp and nutral_temp
     T_r = (ion_temp + nutral_temp)/2
     T_e = electron_temp
     
-    # constants ish
+    # Reaction rates
     alpha1 = 2.1e-13 * (T_e/300)**-0.85
     alpha2 = 1.9e-13 * (T_e/300)**-0.5
     alpha3 = 1.8e-13 * (T_e/300)**-0.39
@@ -127,14 +220,54 @@ def task_1(altitude):
     k6 = 5e-17 * (T_r/300)**-0.8
         
     def ionization_rate(t):
+        """ 
+        The ionization rate as a function of time
+    
+        Parameters:
+        -----------
+        t: float
+            The time at which the ionization rate is to be calculated
+        
+        Returns:
+        --------
+        q_e: float
+            The ionization rate at time t
+        """
         q_e = 1e10 # ionization rate
-        if t < 100:
+        if t < 100: # for the first 100 seconds the ionization rate is 1e10
             return q_e
-        else:
+        else: # after 100 seconds the ionization rate is 0
             return 0
 
 
     def ODEs(ni, t, altitude):
+        """ 
+        The ODEs for the different ions and electrons
+    
+        Parameters:
+        -----------
+        ni: array
+            The different densities for the different ions and electrons
+        t: float
+            The time at which the ODEs are to be calculated
+        altitude: float
+            The altitude at which the ODEs are to be calculated
+        
+        Returns:
+        --------
+        d_nN2p: float
+            The change in density of N2+
+        d_nO2p: float
+            The change in density of O2+
+        d_nOp: float
+            The change in density of O+
+        d_nNOp: float
+            The change in density of NO+
+        d_nO: float
+            The change in density of O
+        d_ne: float
+            The change in density of electrons
+        """
         #------------------------------------------- ODES -------------------------------------------#
     
         q_e = ionization_rate(t)
@@ -159,9 +292,8 @@ def task_1(altitude):
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
-    # Initial conditions
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
-    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
+    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]] # Initial conditions
     time = np.linspace(0, 600, 601) # time vector
     solve = odeint(ODEs, ni0, time, args= (altitude,)) # solving the ODEs for the wanted altitude
 
@@ -171,6 +303,12 @@ def task_1(altitude):
     NOp = solve[:,3]
     NO  = solve[:,4]
     ne  = solve[:,5]
+    
+    # Check if charge is conserved
+    tot_charge = (N2p + O2p + Op + NOp) - ne
+    for i in range(len(tot_charge)):
+        if tot_charge[i] >= 1: # since the charge is not totally conserved (due to rounding), hence equal to zero. We check if it is greater or equal than/to 1
+            raise ValueError("Charge is not conserved")
 
     plt.plot(time, N2p, label = "$N_2^+$")
     plt.plot(time, O2p, label = "$O_2^+$")
@@ -191,21 +329,29 @@ Task 2: Same as above but increase the electron and ion temperatures by 1000 K b
         and by 2000 K at the altitudes above 150 km. Compare the ion-composition for the two cases.
 """
 def task_2(altitude):
+    """ 
+    The ODEs for the different ions and electrons: TASK 2
+    
+    Parameters:
+    -----------
+    altitude: float
+        The altitude at which the ODEs are to be calculated
+    """
     # finds T_r by taking the mean of ion_temp and nutral_temp
     T_e = electron_temp
     
     # function for increasing the temperatures
     def temperature_increase(altitude):
         # 
-        if altitude < 150:
+        if altitude < 150: # below 150 km the temperature is increased by 1000 K
             return T_e + 1000, ion_temp + 1000
-        else: 
+        else:            # above 150 km the temperature is increased by 2000 K
             return T_e + 2000, ion_temp + 2000
     
-    T_e = temperature_increase(altitude)[0]
-    T_r = (temperature_increase(altitude)[1] + nutral_temp)/2
+    T_e = temperature_increase(altitude)[0] # electron temperature
+    T_r = (temperature_increase(altitude)[1] + nutral_temp)/2 
     
-    # constants ish
+    # Reaction rates
     alpha1 = 2.1e-13 * (T_e/300)**-0.85
     alpha2 = 1.9e-13 * (T_e/300)**-0.5
     alpha3 = 1.8e-13 * (T_e/300)**-0.39
@@ -220,6 +366,19 @@ def task_2(altitude):
     k6 = 5e-17 * (T_r/300)**-0.8
         
     def ionization_rate(t):
+        """ 
+        The ionization rate as a function of time
+    
+        Parameters: 
+        -----------
+        t: float
+            The time at which the ionization rate is to be calculated
+            
+        Returns:
+        --------
+        q_e: float
+            The ionization rate at time t
+        """
         q_e = 1e10 # ionization rate
         if t < 100:
             return q_e
@@ -227,6 +386,33 @@ def task_2(altitude):
             return 0
 
     def ODEs(ni, t, altitude):
+        """ 
+        The ODEs for the different ions and electrons
+    
+        Parameters:
+        -----------
+        ni: array
+            The initial conditions for the ODEs
+        t: float
+            The time at which the ODEs are to be calculated
+        altitude: float
+            The altitude at which the ODEs are to be calculated
+        
+        Returns:
+        --------
+        d_nN2p: float
+            The change in density of N2+ ions
+        d_nO2p: float
+            The change in density of O2+ ions
+        d_nOp: float
+            The change in density of O+ ions
+        d_nNOp: float
+            The change in density of NO+ ions
+        d_nNO: float
+            The change in density of NO
+        d_ne: float
+            The change in density of electrons
+        """
         #------------------------------------------- ODES -------------------------------------------#
     
         q_e = ionization_rate(t)
@@ -251,9 +437,8 @@ def task_2(altitude):
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
-    # Initial conditions
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
-    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
+    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]] # Initial conditions
     time = np.linspace(0, 600, 601) # time vector
     solve = odeint(ODEs, ni0, time, args= (altitude,)) # solving the ODEs for the wanted altitude
 
@@ -263,6 +448,12 @@ def task_2(altitude):
     NOp = solve[:,3]
     NO  = solve[:,4]
     ne  = solve[:,5]
+
+    # Check if charge is conserved
+    tot_charge = (N2p + O2p + Op + NOp) - ne
+    for i in range(len(tot_charge)):
+        if tot_charge[i] >= 1:
+            raise ValueError("Charge is not conserved")
 
     plt.plot(time, N2p, label = "$N_2^+$")
     plt.plot(time, O2p, label = "$O_2^+$")
@@ -284,10 +475,18 @@ Task 3: Compare the electron-density decay at 110 and 230 km with the expected d
         include both the dissociative recombination of O2p and NOp when calculating the beta-decay.
 """
 def task_3(altitude): 
+    """ 
+    Compare the electron-density decay at 110 and 230 km with the expected decrease-characteristics: TASK 3
+    
+    Parameters:
+    -----------
+    altitude: float
+        The altitude at which the ODEs are to be calculated
+    """
     T_r = (ion_temp + nutral_temp)/2
     T_e = electron_temp
     
-    # constants ish
+    # Reaction rates
     alpha1 = 2.1e-13 * (T_e/300)**(-0.85)
     alpha2 = 1.9e-13 * (T_e/300)**(-0.5)
     alpha3 = 1.8e-13 * (T_e/300)**(-0.39)
@@ -302,6 +501,19 @@ def task_3(altitude):
     k6 = 5e-17 * (T_r/300)**(-0.8)
         
     def ionization_rate(t):
+        """ 
+        The ionization rate as a function of time
+    
+        Parameters:
+        -----------
+        t: float
+            The time at which the ionization rate is to be calculated
+        
+        Returns:
+        --------
+        q_e: float
+            The ionization rate at time t
+        """
         q_e = 1e10 # ionization rate
         if t < 100:
             return q_e
@@ -310,6 +522,33 @@ def task_3(altitude):
 
     
     def ODEs(ni, t, altitude):
+        """ 
+        The ODEs for the different ions and electrons
+    
+        Parameters:
+        -----------
+        ni: array
+            The initial conditions for the ODEs
+        t: float
+            The time at which the ODEs are to be calculated
+        altitude: float
+            The altitude at which the ODEs are to be calculated
+        
+        Returns:
+        --------
+        d_nN2p: float
+            The change in density of N2+ ions
+        d_nO2p: float
+            The change in density of O2+ ions
+        d_nOp: float
+            The change in density of O+ ions
+        d_nNOp: float
+            The change in density of NO+ ions
+        d_nNO: float
+            The change in density of NO
+        d_ne: float
+            The change in density of electrons
+        """
         #------------------------------------------- ODES -------------------------------------------#
     
         q_e = ionization_rate(t)
@@ -334,9 +573,8 @@ def task_3(altitude):
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
-    # Initial conditions
-        # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
-    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
+        # nN2p, nO2p,         nOp,         nNOp,      nNO, ne 
+    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]] # Initial conditions
     t = np.linspace(0, 600, 601) # time vector
     solve = odeint(ODEs, ni0, t, args= (altitude,)) # solving the ODEs for the wanted altitude
 
@@ -347,14 +585,42 @@ def task_3(altitude):
     NO  = solve[:,4]
     ne  = solve[:,5]
     
+    # Check if charge is conserved
+    tot_charge = (N2p + O2p + Op + NOp) - ne
+    for i in range(len(tot_charge)):
+        if tot_charge[i] >= 1:
+            raise ValueError("Charge is not conserved")
+    
+    #------------------------------------------- DECAYS -------------------------------------------#
     beta = (k1*nN2[altitude] + k2[altitude]*nO2[altitude]) / (1 + (k1/alpha1[altitude])*(nN2[altitude]/ ne[100]) + (k2[altitude]/alpha2[altitude])*(nO2[altitude]/ne[100]))
     
     alpha_eff = alpha1[altitude]*(NOp[100]/ne[100]) + alpha2[altitude]*(O2p[100]/ne[100]) + alpha3[altitude]*(N2p[100]/ne[100])
     
     def beta_decay(t):
+        """ 
+        The beta decay as a function of time
+    
+        Parameters:
+        -----------
+        t: float
+            The time at which the beta decay is to be calculated
+        
+        Returns:
+        --------
+        beta_decay: float
+            The beta decay at time t
+        """
         return ne[100]*np.exp(-beta*(t[100:]-t[100]))
         
     def alpha_decay():
+        """ 
+        The alpha decay as a function of time
+
+        Returns:
+        --------
+        alpha_decay: float
+            The alpha decay at time t
+        """
         return ne[100]/(1 + alpha_eff*ne[100]*(t[100:]-t[100]))
 
 
@@ -379,11 +645,19 @@ Task 4: The response to ionization that varies as: q_e = hat_q_e * sin(2*pi*t/20
 """
 
 def task_4(altitude):
+    """ 
+    The response to ionization that varies as: q_e = hat_q_e * sin(2*pi*t/20)
+    
+    Parameters:
+    -----------
+    altitude: float
+        The altitude at which the ODEs are to be solved
+    """
     # finds T_r by taking the mean of ion_temp and nutral_temp
     T_r = (ion_temp + nutral_temp)/2
     T_e = electron_temp
     
-    # constants ish
+    # Reaction rates
     alpha1 = 2.1e-13 * (T_e/300)**-0.85
     alpha2 = 1.9e-13 * (T_e/300)**-0.5
     alpha3 = 1.8e-13 * (T_e/300)**-0.39
@@ -398,14 +672,49 @@ def task_4(altitude):
     k6 = 5e-17 * (T_r/300)**-0.8
     
     def ionization(t):
-        hat_q_e = 2e10
-        q_e = hat_q_e * (np.sin(2*np.pi*t/20)**2)
-        if t < 100:
+        """ 
+        The ionization as a function of time
+        
+        Parameters:
+        -----------
+        t: float
+            The time at which the ionization is to be calculated
+        """
+        hat_q_e = 2e10 # peak ion-electron production
+        q_e = hat_q_e * (np.sin(2*np.pi*t/20)**2) # ion-electron production
+        if t < 100: # ion-electron production for the first 100 s followed by absolutely no further ionization for the remaining 500 s
             return q_e
         else:
             return 0
 
     def ODEs(ni, t, altitude):
+        """ 
+        The ODEs for the different ions and electrons
+    
+        Parameters:
+        -----------
+        ni: array
+            The initial conditions for the ODEs
+        t: float
+            The time at which the ODEs are to be calculated
+        altitude: float
+            The altitude at which the ODEs are to be calculated
+        
+        Returns:
+        --------
+        d_nN2p: float
+            The change in density of N2+ ions
+        d_nO2p: float
+            The change in density of O2+ ions
+        d_nOp: float
+            The change in density of O+ ions
+        d_nNOp: float
+            The change in density of NO+ ions
+        d_nNO: float
+            The change in density of NO
+        d_ne: float
+            The change in density of electrons
+        """
         #------------------------------------------- ODES -------------------------------------------#
     
         q_e = ionization(t)
@@ -430,9 +739,8 @@ def task_4(altitude):
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
-    # Initial conditions
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
-    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]]
+    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]] # Initial conditions
     time = np.linspace(0, 600, 601) # time vector
     solve = odeint(ODEs, ni0, time, args= (altitude,)) # solving the ODEs for the wanted altitude
 
@@ -443,6 +751,12 @@ def task_4(altitude):
     NO  = solve[:,4]
     ne  = solve[:,5]
     
+    # Check if charge is conserved
+    tot_charge = (N2p + O2p + Op + NOp) - ne
+    for i in range(len(tot_charge)):
+        if tot_charge[i] >= 1:
+            raise ValueError("Charge is not conserved")
+    
     plt.plot(time, N2p, label = "$N_2^+$")
     plt.plot(time, O2p, label = "$O_2^+$")
     plt.plot(time, Op, label = "$O^+$")
@@ -450,18 +764,19 @@ def task_4(altitude):
     plt.plot(time, NO, label = "$NO$")
     plt.plot(time, ne, label = "$e^- $")
     plt.xlabel("Time [s]")
-    plt.ylabel("Density [m^-3]")
+    plt.ylabel("Density [$m^{-3}$]")
     plt.yscale("log")
-    plt.ylim(2e9, 1e12)
+    plt.ylim(1e9, 1e12)
     plt.title("Ion densities at " + str(int(altitude)) + "km, $q_e = q(t)$ for 100s, 0 else")
     plt.legend()
     plt.show()
-    
+
+
 if __name__ == "__main__":
     # !!! Remember to run the functions, the altitudes need to be indexed !!!
     # The altitudes to choose from are 110 ([0]), 170 ([1]) and 230([2]) km
     
-    #task_0(altitudes[0])
+    task_0(altitudes[0])
     #task_1(altitudes[0])
     #task_2(altitudes[0])
     #task_3(altitudes[0])
