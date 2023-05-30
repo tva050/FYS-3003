@@ -16,3 +16,18 @@ Ionospheric-chemistry.notes.pdf: p.16 and p.32
 
 alpha_decay , best in E
 beta_decay, best in F
+
+
+E-region(90-140) chemistry:
+- Due to its large chemical potential N_2^+ have large reaction-rates, meaning that the N_2^+ are rapidly lost in the reactions, therefore molecular nitrogen ion density is always low
+
+Below 150km we see that molecular ions such as O_2^+ and NO^+ are pretty dominant species. Above 150km, we see that the O^+ ion is becoming more great and than dominate above 200km. 
+
+
+By using the beta-decay model, the decay of electron density with time follows a exponential pattern, where the decay rate is obatained by using a parameter called beta-marked. This model suggest that the loss rate of electrons is proportional to the electron density itself. The alpha-decay on the other hand, says that the loss rate is proportional to the squate og the electron density
+
+
+
+
+One of the most importent processes in the D, E and F-region is dissociative recombination. A process where electrons attach to a positively charged molecular ions, this forms energetic and unstable neutral molecules. Here the molecules decompose spontaneously, converting internal to kinetic energy. Maby the most import recombination is of $O_2^+$ and $NO^+$, which makes us distinguish objekts on a dark and moonless nights on earth.      
+

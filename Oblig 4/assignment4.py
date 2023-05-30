@@ -140,6 +140,10 @@ def task_0(altitude):
 
     # plot the different loss and source-terms, i.e the rates of different reactions 
     plt.plot(t, tot_charge, label = "Total charge")
+    plt.title("Charge conservation at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^8$")
+    plt.xlabel("Time [s]")
+    plt.ylabel("Charge [m^-3]")
+    plt.legend()
     plt.show()
     
     def plot_reactionrates(altitude):
@@ -175,7 +179,7 @@ def task_0(altitude):
         plt.plot(t, k5, label = "$k_5$", color = "pink")
         plt.plot(t, k6, label = "$k_6$", color = "gray")
         plt.xlabel("Time [s]")
-        plt.ylabel("Rate [m^-3s^-1]")
+        plt.ylabel("Rate")
         plt.yscale("log")
         #plt.ylim(1e-1, 1e12)
         plt.title("Reaction rates at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^8$")

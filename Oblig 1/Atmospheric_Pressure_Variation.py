@@ -19,13 +19,14 @@ m_O2 = 31.9988e-3
 
 # Read data from file MSIS.dat in a reasonable format
 # height (km), O (cm-3), N2 (cm-3), O2 (cm-3), mass_density (g/cm3), temperature_neutral (K)
-height, O, N2, O2, mass_density, temperature_neutral = np.loadtxt('MSIS.dat', skiprows=18, unpack=True)
+height, O, N2, O2, mass_density, temperature_neutral = np.loadtxt(r'Data\MSIS.dat', skiprows=18, unpack=True)
 
 # total number density (cm-3) convert to m-3
 number_density = (O + N2 + O2)*1e6
 # mass density (kg/m3)
 mass_density = mass_density * 1e3
 
+height = height * 1e3 # convert to m
 
 #ave_mass = (O * m_O + N2 * m_N2 + O2 * m_O2) / (O + N2 + O2) 
 ave_mass = mass_density / number_density
@@ -39,9 +40,9 @@ def scale_height(temperature, ave_mass):
     return k_B * temperature / (ave_mass * gravitational_acceleration(height))
 
 
-plt.plot(scale_height(temperature_neutral, ave_mass), height)
-plt.xlabel('Scale height (m)')
-plt.ylabel('Height (m)')
+plt.plot(scale_height(temperature_neutral, ave_mass)*1e-3, height*1e-3 ) # convert to km
+plt.xlabel('Scale height (km)')
+plt.ylabel('Height (km)')
 plt.title('Scale height variation with height')
 plt.show()
 
