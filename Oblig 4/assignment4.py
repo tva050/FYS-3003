@@ -12,7 +12,7 @@ nO, nN2, nO2 = nO*1e6, nN2*1e6, nO2*1e6
 altitudes = [110, 170, 230]
 
 # constants ish (converting the percent of number density to a value)
-sum_ions = O_ions + O2_ions + No_ions + N_ions
+sum_ions = O_ions + O2_ions + No_ions + N_ions + H_ions + He_ions
 n_O_ions = (O_ions/sum_ions)*n_e
 n_O2_ions = (O2_ions/sum_ions)*n_e
 n_NO_ions = (No_ions/sum_ions)*n_e
@@ -103,8 +103,10 @@ def task_0(altitude):
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
+    idx = np.where(height == altitude)[0][0] # finds the index of the wanted altitude
+
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
-    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]] # Initial conditions
+    ni0 = [0 , n_O2_ions[idx], n_O_ions[idx], n_NO_ions[idx], 0, n_e[idx]] # Initial conditions
     t = np.linspace(0, 3600, 3601) # time vector 
     solve = odeint(ODEs, ni0, t, args= (altitude,)) # solving the ODEs for the wanted altitude
 
@@ -296,8 +298,9 @@ def task_1(altitude):
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
+    idx = np.where(height == altitude)[0][0] # finds the index of the wanted altitude
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
-    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]] # Initial conditions
+    ni0 = [0 , n_O2_ions[idx], n_O_ions[idx], n_NO_ions[idx], 0, n_e[idx]] # Initial conditions
     time = np.linspace(0, 600, 601) # time vector
     solve = odeint(ODEs, ni0, time, args= (altitude,)) # solving the ODEs for the wanted altitude
 
@@ -441,8 +444,10 @@ def task_2(altitude):
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
+    idx = np.where(height == altitude)[0][0] # finds the index of the wanted altitude
+
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
-    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]] # Initial conditions
+    ni0 = [0 , n_O2_ions[idx], n_O_ions[idx], n_NO_ions[idx], 0, n_e[idx]] # Initial conditions
     time = np.linspace(0, 600, 601) # time vector
     solve = odeint(ODEs, ni0, time, args= (altitude,)) # solving the ODEs for the wanted altitude
 
@@ -743,8 +748,10 @@ def task_4(altitude):
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
+    idx = np.where(height == altitude)[0][0] # finds the index of the wanted altitude
+
         # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
-    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]] # Initial conditions
+    ni0 = [0 , n_O2_ions[idx], n_O_ions[idx], n_NO_ions[idx], 0, n_e[idx]] # Initial conditions
     time = np.linspace(0, 600, 601) # time vector
     solve = odeint(ODEs, ni0, time, args= (altitude,)) # solving the ODEs for the wanted altitude
 
@@ -780,7 +787,7 @@ if __name__ == "__main__":
     # !!! Remember to run the functions, the altitudes need to be indexed !!!
     # The altitudes to choose from are 110 ([0]), 170 ([1]) and 230([2]) km
     
-    task_0(altitudes[0])
+    #task_0(altitudes[0])
     #task_1(altitudes[0])
     #task_2(altitudes[0])
     #task_3(altitudes[0])

@@ -24,7 +24,7 @@ height, O, N2, O2, mass_density, temperature_neutral = np.loadtxt(r'Data\MSIS.da
 # total number density (cm-3) convert to m-3
 number_density = (O + N2 + O2)*1e6
 # mass density (kg/m3)
-mass_density = mass_density * 1e3
+mass_density = mass_density * 1e3 
 
 height = height * 1e3 # convert to m
 
@@ -50,13 +50,15 @@ plt.show()
 """ Task 2 """
 # Using the barometric equation, to calculate the pressure variation with height.
 def pressure_variation(height, pressure_0):
-    pressure = pressure_0 * np.exp(-height / scale_height(temperature_neutral, ave_mass))
+    pressure = pressure_0 * np.exp(-height / scale_height(temperature_neutral, ave_mass)*1e-3) # convert to km
     return pressure
-plt.plot(pressure_variation(height, P_0), height)
+plt.plot(pressure_variation(height, P_0)*1e-3, height*1e-3) 
+plt.xlabel('Pressure (kPa)')
+plt.ylabel('Height (km)')
+plt.title('Pressure variation with height')
 plt.show()
-plt.plot(pressure_variation(height, P_0), height)
-plt.xscale('log')
-plt.show()
+
+
 
 
 """ Task 3 """
@@ -66,7 +68,7 @@ plt.show()
 
 # Density variation with height
 def density(height):
-    density = number_density[0]* (temperature_neutral[0]/temperature_neutral) * np.exp(-height/scale_height(temperature_neutral, ave_mass))
+    density = number_density[0]* (temperature_neutral[0]/temperature_neutral) * np.exp(-height/scale_height(temperature_neutral, ave_mass)*1e-3)
     return density
     
 def ideal_gaslaw(height):
@@ -74,14 +76,32 @@ def ideal_gaslaw(height):
     return ideal_gas_law
 
 plt.subplot(1,2,1)
-plt.plot(pressure_variation(height, P_0), height)
-plt.xlabel('Pressure (Pa)')
-plt.ylabel('Height (m)')
-plt.title('Pressure variation with height')
+plt.plot(pressure_variation(height, P_0)*1e-3, height*1e-3)
+plt.xlabel('Pressure (kPa)')
+plt.ylabel('Height (km)')
+plt.title('Pressure variation')
 
 plt.subplot(1,2,2)
-plt.plot(ideal_gaslaw(height), height)
-plt.xlabel('Pressure (Pa)')
+plt.plot(ideal_gaslaw(height)*1e-3, height*1e-3)
+plt.xlabel('Pressure (kPa)')
 plt.title('Ideal gas law')
 
 plt.show()
+
+
+def temperature_vs_adiabatic():
+    dT = np.diff(temperature_neutral) # Temperature difference
+    dz = np.diff(height) # Height difference
+    
+    dTdz = dT/dz # Temperature gradient
+    
+    abc_lapsrate = -(((1.4-1)/(1.4)) * ((ave_mass *g_0)/k_B))*1e3 # Adiabatic lapse rate, with coneversion to K/km
+    
+    plt.plot(height[:-1], dTdz)
+    plt.plot(height, abc_lapsrate)
+    plt.xlabel('Height (km)')
+    plt.ylabel('Temperature gradient (K/km)')
+    plt.show()
+    
+temperature_vs_adiabatic()
+    
