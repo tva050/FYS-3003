@@ -23,6 +23,18 @@ height, O, N2, O2 = np.loadtxt(r'Data\MSIS.dat', unpack = True ,skiprows=18, use
 wavelength, absorption_cross_section_N2, absorption_cross_section_O2, absorption_cross_section_O = np.loadtxt("Data\phot_abs.dat", skiprows=8, unpack=True)
 wavelength_fism, irradiance = np.loadtxt("Data\Fism_daily_hr19990216.dat",  unpack = True, skiprows = 51, max_rows=949, delimiter=',', usecols = (1, 2))
 
+sigma_ionization = sc.io.loadmat(r'Data\sigma_ionization.mat')
+
+ionization_cross_section_N2 = sigma_ionization['sigma_N2ion_of_wl']
+ionization_cross_section_N2 = ionization_cross_section_N2.reshape(ionization_cross_section_N2.shape[1]) # reshaping to 1D array
+ionization_cross_section_O2 = sigma_ionization['sigma_O2ion_of_wl']
+ionization_cross_section_O2 = ionization_cross_section_O2.reshape(ionization_cross_section_O2.shape[1]) # reshaping to 1D array
+ionization_cross_section_O = sigma_ionization['sigma_Oion_of_wl']
+ionization_cross_section_O = ionization_cross_section_O.reshape(ionization_cross_section_O.shape[1]) # reshaping to 1D array
+
+wavelength_ionization = sigma_ionization['wl']
+wavelength_ionization = wavelength_ionization.reshape(wavelength_ionization.shape[1]) # reshaping to 1D array
+
 # Converting to SI units
 wavelength_fism *= 1e-9 # m
 height *= 1e3
@@ -40,13 +52,13 @@ O_threshold = 9.11e-8 # Ångström -> m
 
 #___________________________________________________________
 #Since data have different sizes, we need to interpolate the data to the same size
-interpolate_N2 = sc.interpolate.interp1d(wavelength, absorption_cross_section_N2, kind='linear')
-interpolate_O2 = sc.interpolate.interp1d(wavelength, absorption_cross_section_O2, kind='linear')
-interpolate_O  = sc.interpolate.interp1d(wavelength, absorption_cross_section_O,  kind='linear')
+interpolate_N2 = sc.interpolate.interp1d(wavelength_ionization, ionization_cross_section_N2, kind='linear', fill_value="extrapolate")
+interpolate_O2 = sc.interpolate.interp1d(wavelength_ionization, ionization_cross_section_O2, kind='linear', fill_value="extrapolate")
+interpolate_O  = sc.interpolate.interp1d(wavelength_ionization, ionization_cross_section_O,  kind='linear', fill_value="extrapolate")
 
-absorption_cross_section_N2 = interpolate_N2(wavelength_fism)
-absorption_cross_section_O2 = interpolate_O2(wavelength_fism)
-absorption_cross_section_O  = interpolate_O(wavelength_fism)
+ionization_cross_section_N2 = interpolate_N2(wavelength_fism)
+ionization_cross_section_O2 = interpolate_O2(wavelength_fism)
+ionization_cross_section_O  =  interpolate_O(wavelength_fism)
 #___________________________________________________________
 
 
@@ -63,9 +75,9 @@ def production_rate(I, wavelength, threshold, sigma, n, alititude):
     return P, E
 
 def phot_e_prod(altitude, all_I):
-    P_N2, E_N2 = production_rate(all_I, wavelength_fism, N2_threshold, absorption_cross_section_N2, N2, altitude)
-    P_O2, E_O2 = production_rate(all_I, wavelength_fism, O2_threshold, absorption_cross_section_O2, O2, altitude)
-    P_O, E_O = production_rate(all_I, wavelength_fism, O_threshold, absorption_cross_section_O, O, altitude)
+    P_N2, E_N2 = production_rate(all_I, wavelength_fism, N2_threshold, ionization_cross_section_N2, N2, altitude)
+    P_O2, E_O2 = production_rate(all_I, wavelength_fism, O2_threshold, ionization_cross_section_O2, O2, altitude)
+    P_O, E_O = production_rate(all_I, wavelength_fism, O_threshold, ionization_cross_section_O, O, altitude)
     
     energy = np.linspace(np.min(E_O), np.max(E_O2), 1000) # Energy range for interpolation
     
@@ -89,7 +101,7 @@ for z in range(len(height)):
 plt.pcolormesh(energies, height*1e-3, p, norm = colors.LogNorm(vmin = 1e3, vmax = 1e-1))
 plt.xlabel("Energy [eV]")
 plt.ylabel("Altitude [km]")
-plt.title("Production rate of photo-electrons SZA = 75$^\circ$")
+plt.title("Production rate of photo-electrons SZA = 0$^\circ$")
 plt.colorbar(label = "Production rate [cm$^{-3}$ s$^{-1}$]")
 plt.show()
 
@@ -187,9 +199,9 @@ def ionization_profile(I, wavelength, threshold, sigma, n):
         q[i] = integral * n[i] # photo-ionization rate
     return q*1e9 # -> cm^-3 s^-1
 
-q_N2 = ionization_profile(all_I[0], wavelength_fism, N2_threshold, absorption_cross_section_N2, N2)*1e-6
-q_O2 = ionization_profile(all_I[0], wavelength_fism, O2_threshold, absorption_cross_section_O2, O2)*1e-6
-q_O = ionization_profile(all_I[0], wavelength_fism, O_threshold, absorption_cross_section_O, O)*1e-6
+q_N2 = ionization_profile(all_I[0], wavelength_fism, N2_threshold, ionization_cross_section_N2, N2)*1e-6
+q_O2 = ionization_profile(all_I[0], wavelength_fism, O2_threshold, ionization_cross_section_O2, O2)*1e-6
+q_O = ionization_profile(all_I[0], wavelength_fism, O_threshold, ionization_cross_section_O, O)*1e-6
 total_q = q_N2 + q_O2 + q_O # total photo-ionization rate
 
 # Plotting photo-ionization rate as a function of altitude
@@ -199,7 +211,7 @@ plt.plot(q_N2, height*1e-3, label="N2", color = "gray")
 plt.plot(total_q, height*1e-3, label="Total", color = "teal")
 plt.xlabel("q [cm$^{-3}$ s$^{-1}$]")
 plt.ylabel("Height [km]")
-plt.title("photo-ionization rate SZA = 75$^\circ$")
+plt.title("photo-ionization rate SZA = 0$^\circ$")
 plt.legend()
 plt.show()
 
@@ -219,6 +231,6 @@ for i in range(len(szas)):
     plt.xlabel("q [cm$^{-3}$ s$^{-1}$]")
     plt.ylabel("Height [km]")
     plt.title("Chapman profile")
-    plt.xlim(-10, 5800)
+    plt.xlim(-10, 3800)
     plt.legend()
 plt.show()

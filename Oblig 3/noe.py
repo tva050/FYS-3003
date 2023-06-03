@@ -22,8 +22,7 @@ szas = np.array([0, 10, 20, 30, 40, 50, 75])
 
 height, O, N2, O2 = np.loadtxt(r'Data\MSIS.dat', unpack = True ,skiprows=18, usecols= (0, 1, 2, 3))
 wavelength, absorption_cross_section_N2, absorption_cross_section_O2, absorption_cross_section_O = np.loadtxt("Data\phot_abs.dat", skiprows=8, unpack=True)
-wavelength_fism, irradiance = np.loadtxt("Data\Fism_daily_hr19990216.dat",  unpack = True, skiprows = 51, max_rows=949, delimiter=',', usecols = (1, 2))
-
+wavelength_fism, irradiance = np.loadtxt("Data\Fism_daily_hr19990216.dat",  unpack = True, skiprows = 51, max_rows=949, delimiter=',', usecols = (1, 2)) 
 
 sigma_ionization = scipy.io.loadmat(r'Data\sigma_ionization.mat')
 
@@ -36,8 +35,6 @@ ionization_cross_section_O = ionization_cross_section_O.reshape(ionization_cross
 
 wavelength_ionization = sigma_ionization['wl']
 wavelength_ionization = wavelength_ionization.reshape(wavelength_ionization.shape[1]) # reshaping to 1D array
-wavelength_ionization *= 1e-10 # Ångström -> m
-
 
 # Converting to SI units
 wavelength_fism *= 1e-9 # m
@@ -56,13 +53,13 @@ O_threshold = 9.11e-8 # Ångström -> m
 
 #___________________________________________________________
 #Since data have different sizes, we need to interpolate the data to the same size
-interpolate_N2 = sc.interpolate.interp1d(wavelength_ionization, ionization_cross_section_N2, kind='linear')
-interpolate_O2 = sc.interpolate.interp1d(wavelength_ionization, ionization_cross_section_O2, kind='linear')
-interpolate_O  = sc.interpolate.interp1d(wavelength_ionization, ionization_cross_section_O,  kind='linear')
+interpolate_N2 = sc.interpolate.interp1d(wavelength_ionization, ionization_cross_section_N2, kind='linear', fill_value="extrapolate")
+interpolate_O2 = sc.interpolate.interp1d(wavelength_ionization, ionization_cross_section_O2, kind='linear', fill_value="extrapolate")
+interpolate_O  = sc.interpolate.interp1d(wavelength_ionization, ionization_cross_section_O,  kind='linear', fill_value="extrapolate")
 
-ionization_cross_section_N2 = interpolate_N2(wavelength_ionization)
-ionization_cross_section_O2 = interpolate_O2(wavelength_ionization)
-ionization_cross_section_O  =  interpolate_O(wavelength_ionization)
+ionization_cross_section_N2 = interpolate_N2(wavelength_fism)
+ionization_cross_section_O2 = interpolate_O2(wavelength_fism)
+ionization_cross_section_O  =  interpolate_O(wavelength_fism)
 #___________________________________________________________
 
 
@@ -79,10 +76,9 @@ def production_rate(I, wavelength, threshold, sigma, n, alititude):
     return P, E
 
 def phot_e_prod(altitude, all_I):
-    P_N2, E_N2 = production_rate(all_I, wavelength_ionization, N2_threshold, ionization_cross_section_N2, N2, altitude)
-    P_O2, E_O2 = production_rate(all_I, wavelength_ionization, O2_threshold, ionization_cross_section_O2, O2, altitude)
-    P_O, E_O =   production_rate(all_I, wavelength_ionization, O_threshold, ionization_cross_section_O, O, altitude)
-    
+    P_N2, E_N2 = production_rate(all_I, wavelength_fism, N2_threshold, ionization_cross_section_N2, N2, altitude)
+    P_O2, E_O2 = production_rate(all_I, wavelength_fism, O2_threshold, ionization_cross_section_O2, O2, altitude)
+    P_O, E_O = production_rate(all_I, wavelength_fism, O_threshold, ionization_cross_section_O, O, altitude)
     
     energy = np.linspace(np.min(E_O), np.max(E_O2), 1000) # Energy range for interpolation
     
