@@ -215,6 +215,20 @@ plt.title("photo-ionization rate SZA = 0$^\circ$")
 plt.legend()
 plt.show()
 
+def photo_ionization_rate_all_sza():
+    for i in range(len(szas)):
+        q_N2 = ionization_profile(all_I[i], wavelength_fism, N2_threshold, ionization_cross_section_N2, N2)*1e-6
+        q_O2 = ionization_profile(all_I[i], wavelength_fism, O2_threshold, ionization_cross_section_O2, O2)*1e-6
+        q_O = ionization_profile(all_I[i], wavelength_fism, O_threshold, ionization_cross_section_O, O)*1e-6
+        total_q = q_N2 + q_O2 + q_O # total photo-ionization rate
+        plt.plot(total_q, height*1e-3, label = "SZA = " + str(szas[i]) + "$^\circ$")
+        plt.xlabel("q [cm$^{-3}$ s$^{-1}$]")
+        plt.ylabel("Height [km]")
+        plt.title("photo-ionization rate")
+        plt.xlim(-10, 3800)
+        plt.legend()
+    plt.show()
+#photo_ionization_rate_all_sza()
 
 
 # Chapman profile
