@@ -93,10 +93,10 @@ def phot_e_prod(altitude, all_I):
     return p, energy 
 
 # Plotting production rate as a function of energy and altitude for different SZA with meshgrid
-energies = phot_e_prod(0, all_I[0])[1]
-p = np.zeros((len(height), len(energies)))
-for z in range(len(height)): 
-    p[z] = phot_e_prod(z, all_I[0])[0]
+energies = phot_e_prod(0, all_I[0])[1] # Energy range for meshgrid
+p = np.zeros((len(height), len(energies))) # gives p to have the same shape as height array
+for z in range(len(height)):  # for each altitude
+    p[z] = phot_e_prod(z, all_I[0])[0] # production rate of photo-electrons at specific altitude
 
 plt.pcolormesh(energies, height*1e-3, p, norm = colors.LogNorm(vmin = 1e3, vmax = 1e-1))
 plt.xlabel("Energy [eV]")
@@ -236,7 +236,7 @@ def chapman(q, H, chi):
     q_m0 = np.max(q) # max photo-ionization rate
     z_m0 = height[np.argmax(q)] # altitude of max photo-ionization rate
     
-    ch = q_m0 * np.exp((1- (height-z_m0)/H) - 1/np.cos(np.radians(chi)) * np.exp(-(height-z_m0)/H)) # Chapman profile 
+    ch = q_m0 * np.exp((1- (height-z_m0)/H) - 1/np.cos(np.radians(chi)) * np.exp(-(height-z_m0)/H)) # Chapman profile equation 
     return ch
 
 # Plotting Chapman profile for different SZA 

@@ -135,7 +135,7 @@ def task_0(altitude):
     plt.ylabel("Density [m^-3]")
     plt.yscale("log")
     plt.title("Ion densities at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^8$")
-    plt.legend()
+    plt.legend(loc = "lower right")
     plt.show()
     
     
@@ -328,7 +328,7 @@ def task_1(altitude):
     plt.yscale("log")
     plt.ylim(1e7, 1e12)
     plt.title("Ion densities at " + str(int(altitude)) + "km, $q_e = 1\cdot 10^{10}$")
-    plt.legend()
+    plt.legend(loc = "lower right")
     plt.show()
 
 """ 
@@ -582,8 +582,10 @@ def task_3(altitude):
     
         return [d_nN2p[altitude], d_nO2p[altitude], d_nOp[altitude], d_nNOp[altitude], d_nNO[altitude], d_ne[altitude]]
 
-        # nN2p, nO2p,         nOp,         nNOp,      nNO, ne 
-    ni0 = [0 , n_O2_ions[0], n_O_ions[0], n_NO_ions[0], 0, n_e[0]] # Initial conditions
+    idx = np.where(height == altitude)[0][0] # finds the index of the wanted altitude
+
+        # nN2p, nO2p,         nOp,         nNOp,      nNO, ne
+    ni0 = [0 , n_O2_ions[idx], n_O_ions[idx], n_NO_ions[idx], 0, n_e[idx]] # Initial conditions
     t = np.linspace(0, 600, 601) # time vector
     solve = odeint(ODEs, ni0, t, args= (altitude,)) # solving the ODEs for the wanted altitude
 
@@ -787,8 +789,8 @@ if __name__ == "__main__":
     # !!! Remember to run the functions, the altitudes need to be indexed !!!
     # The altitudes to choose from are 110 ([0]), 170 ([1]) and 230([2]) km
     
-    #task_0(altitudes[0])
-    #task_1(altitudes[0])
+    #task_0(altitudes[1])
+    #task_1(altitudes[2])
     #task_2(altitudes[0])
-    #task_3(altitudes[0])
-    #task_4(altitudes[0])
+    #task_3(altitudes[2])
+    #task_4(altitudes[2])
